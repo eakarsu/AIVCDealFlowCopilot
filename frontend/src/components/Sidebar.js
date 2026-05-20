@@ -1,0 +1,127 @@
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { logout, getStoredUser } from '../services/api';
+
+const PIPELINE_LINKS = [
+  { to: '/deals',            label: 'Deals' },
+  { to: '/pipeline-notes',   label: 'Pipeline Notes' },
+  { to: '/intros',           label: 'Intros' },
+  { to: '/term-sheets',      label: 'Term Sheets' },
+];
+
+const COMPANIES_LINKS = [
+  { to: '/companies',        label: 'Companies' },
+  { to: '/founders',         label: 'Founders' },
+];
+
+const FUNDS_LINKS = [
+  { to: '/funds',            label: 'Funds' },
+];
+
+const MEMOS_LINKS = [
+  { to: '/ic-memos',         label: 'IC Memos' },
+];
+
+const PORTFOLIO_LINKS = [
+  { to: '/investments',      label: 'Investments' },
+  { to: '/follow-ons',       label: 'Follow-Ons' },
+  { to: '/portfolio-metrics',label: 'Portfolio Metrics' },
+  { to: '/exits',            label: 'Exits' },
+];
+
+const LP_LINKS = [
+  { to: '/lp-reports',       label: 'LP Reports' },
+  { to: '/capital-calls',    label: 'Capital Calls' },
+  { to: '/distributions',    label: 'Distributions' },
+];
+
+const GOVERNANCE_LINKS = [
+  { to: '/board-meetings',   label: 'Board Meetings' },
+  { to: '/advisors',         label: 'Advisors' },
+  { to: '/audit-log',        label: 'Audit Log' },
+];
+
+const AI_MEMO_LINKS = [
+  { to: '/ai/ic-memo-draft',           label: 'AI · IC Memo Draft' },
+  { to: '/ai/founder-call-summary',    label: 'AI · Founder Call Summary' },
+  { to: '/ai/intro-message-draft',     label: 'AI · Intro Message Draft' },
+  { to: '/ai/founder-redflag-extract', label: 'AI · Founder Red-Flag Extract' },
+];
+
+const AI_ANALYSIS_LINKS = [
+  { to: '/ai/comp-analysis',       label: 'AI · Comp Analysis' },
+  { to: '/ai/valuation-band',      label: 'AI · Valuation Band' },
+  { to: '/ai/market-mapping',      label: 'AI · Market Mapping' },
+  { to: '/ai/portfolio-flag',      label: 'AI · Portfolio Flag' },
+  { to: '/ai/follow-on-recommend', label: 'AI · Follow-On Recommend' },
+  { to: '/ai/term-sheet-compare',  label: 'AI · Term Sheet Compare' },
+  { to: '/ai/cap-table-impact',    label: 'AI · Cap Table Impact' },
+  { to: '/ai/exit-scenario',       label: 'AI · Exit Scenario' },
+];
+
+const AI_REPORTING_LINKS = [
+  { to: '/ai/executive-brief',         label: 'AI · Executive Brief' },
+  { to: '/ai/lp-report-draft',         label: 'AI · LP Report Draft' },
+  { to: '/ai/distribution-waterfall',  label: 'AI · Distribution Waterfall' },
+  { to: '/ai/fund-strategy-brief',     label: 'AI · Fund Strategy Brief' },
+];
+
+export default function Sidebar() {
+  const user = getStoredUser();
+  return (
+    <nav className="sidebar">
+      <div className="sidebar-brand">
+        <h1>VC DEAL FLOW</h1>
+        <p>Pipeline · IC · LP Reporting</p>
+      </div>
+
+      <NavLink to="/" end>Overview</NavLink>
+
+      <div className="sidebar-group-label">Pipeline</div>
+      {PIPELINE_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">Companies</div>
+      {COMPANIES_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">Funds</div>
+      {FUNDS_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">Memos</div>
+      {MEMOS_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">Portfolio</div>
+      {PORTFOLIO_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">LP Reporting</div>
+      {LP_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">Governance</div>
+      {GOVERNANCE_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">AI Memo</div>
+      {AI_MEMO_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">AI Analysis</div>
+      {AI_ANALYSIS_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">AI Reporting</div>
+      {AI_REPORTING_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">Analytics</div>
+      <NavLink to="/custom-views">VC Analytics</NavLink>
+
+      <div className="sidebar-group-label">Admin</div>
+      <NavLink to="/webhooks">Webhooks</NavLink>
+
+      <div className="sidebar-user">
+        {user && (
+          <div className="sidebar-user-info">
+            <div className="sidebar-user-name">{user.name || user.email}</div>
+            <div className="sidebar-user-role">{user.role || 'user'}</div>
+          </div>
+        )}
+        <button className="btn secondary sidebar-logout" onClick={logout}>Sign Out</button>
+      </div>
+    </nav>
+  );
+}
