@@ -23,16 +23,23 @@ const MEMOS_LINKS = [
 ];
 
 const PORTFOLIO_LINKS = [
-  { to: '/investments',      label: 'Investments' },
-  { to: '/follow-ons',       label: 'Follow-Ons' },
-  { to: '/portfolio-metrics',label: 'Portfolio Metrics' },
-  { to: '/exits',            label: 'Exits' },
+  { to: '/investments',         label: 'Investments' },
+  { to: '/follow-ons',          label: 'Follow-Ons' },
+  { to: '/portfolio-metrics',   label: 'Portfolio Metrics' },
+  { to: '/kpi-ingest-sources',  label: 'KPI Ingest Sources' },
+  { to: '/kpi-ingest-records',  label: 'KPI Ingest Records' },
+  { to: '/exits',               label: 'Exits' },
 ];
 
 const LP_LINKS = [
-  { to: '/lp-reports',       label: 'LP Reports' },
-  { to: '/capital-calls',    label: 'Capital Calls' },
-  { to: '/distributions',    label: 'Distributions' },
+  { to: '/lp-reports',          label: 'LP Reports' },
+  { to: '/lp-comms-templates',  label: 'LP Comms Templates' },
+  { to: '/capital-calls',       label: 'Capital Calls' },
+  { to: '/distributions',       label: 'Distributions' },
+];
+
+const CAP_TABLE_LINKS = [
+  { to: '/cap-tables',          label: 'Cap Tables' },
 ];
 
 const GOVERNANCE_LINKS = [
@@ -42,21 +49,26 @@ const GOVERNANCE_LINKS = [
 ];
 
 const AI_MEMO_LINKS = [
-  { to: '/ai/ic-memo-draft',           label: 'AI · IC Memo Draft' },
-  { to: '/ai/founder-call-summary',    label: 'AI · Founder Call Summary' },
-  { to: '/ai/intro-message-draft',     label: 'AI · Intro Message Draft' },
-  { to: '/ai/founder-redflag-extract', label: 'AI · Founder Red-Flag Extract' },
+  { to: '/ai/ic-memo-draft',              label: 'AI · IC Memo Draft' },
+  { to: '/ai/founder-call-summary',       label: 'AI · Founder Call Summary' },
+  { to: '/ai/founder-background-summary', label: 'AI · Founder Background Summary' },
+  { to: '/ai/intro-message-draft',        label: 'AI · Intro Message Draft' },
+  { to: '/ai/founder-redflag-extract',    label: 'AI · Founder Red-Flag Extract' },
+  { to: '/ai/pitch-deck-extract',         label: 'AI · Pitch Deck Extract' },
+  { to: '/ai/dd-qa-generate',             label: 'AI · DD Q&A Generate' },
 ];
 
 const AI_ANALYSIS_LINKS = [
-  { to: '/ai/comp-analysis',       label: 'AI · Comp Analysis' },
-  { to: '/ai/valuation-band',      label: 'AI · Valuation Band' },
-  { to: '/ai/market-mapping',      label: 'AI · Market Mapping' },
-  { to: '/ai/portfolio-flag',      label: 'AI · Portfolio Flag' },
-  { to: '/ai/follow-on-recommend', label: 'AI · Follow-On Recommend' },
-  { to: '/ai/term-sheet-compare',  label: 'AI · Term Sheet Compare' },
-  { to: '/ai/cap-table-impact',    label: 'AI · Cap Table Impact' },
-  { to: '/ai/exit-scenario',       label: 'AI · Exit Scenario' },
+  { to: '/ai/comp-analysis',         label: 'AI · Comp Analysis' },
+  { to: '/ai/valuation-band',        label: 'AI · Valuation Band' },
+  { to: '/ai/market-mapping',        label: 'AI · Market Mapping' },
+  { to: '/ai/market-size-estimate',  label: 'AI · Market Size Estimate' },
+  { to: '/ai/thesis-fit-score',      label: 'AI · Thesis-Fit Score' },
+  { to: '/ai/portfolio-flag',        label: 'AI · Portfolio Flag' },
+  { to: '/ai/follow-on-recommend',   label: 'AI · Follow-On Recommend' },
+  { to: '/ai/term-sheet-compare',    label: 'AI · Term Sheet Compare' },
+  { to: '/ai/cap-table-impact',      label: 'AI · Cap Table Impact' },
+  { to: '/ai/exit-scenario',         label: 'AI · Exit Scenario' },
 ];
 
 const AI_REPORTING_LINKS = [
@@ -85,6 +97,9 @@ export default function Sidebar() {
 
       <div className="sidebar-group-label">Funds</div>
       {FUNDS_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">Cap Tables</div>
+      {CAP_TABLE_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
 
       <div className="sidebar-group-label">Memos</div>
       {MEMOS_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}

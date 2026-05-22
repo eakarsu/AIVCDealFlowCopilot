@@ -94,6 +94,14 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 // Custom analytics views (kanban + portfolio bubble + TVPI + sector donut)
 app.use('/api/custom-views', require('./routes/customViews'));
 
+// Apply pass 7 — backlog CRUD entities (cap tables, LP comms templates,
+// KPI ingest sources + records). Mounted before app.listen to satisfy the
+// "before 404 handler" placement requirement.
+app.use('/api/cap-tables',           require('./routes/capTables'));
+app.use('/api/lp-comms-templates',   require('./routes/lpCommsTemplates'));
+app.use('/api/kpi-ingest-sources',   require('./routes/kpiIngestSources'));
+app.use('/api/kpi-ingest-records',   require('./routes/kpiIngestRecords'));
+
 app.listen(PORT, () => {
   console.log(`\nAI VC Deal Flow Copilot API running on http://localhost:${PORT}\n`);
 });

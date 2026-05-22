@@ -42,6 +42,11 @@ async function run() {
       DROP TABLE IF EXISTS pipeline_notes      CASCADE;
       DROP TABLE IF EXISTS exits               CASCADE;
       DROP TABLE IF EXISTS audit_log           CASCADE;
+
+      DROP TABLE IF EXISTS cap_tables          CASCADE;
+      DROP TABLE IF EXISTS lp_comms_templates  CASCADE;
+      DROP TABLE IF EXISTS kpi_ingest_sources  CASCADE;
+      DROP TABLE IF EXISTS kpi_ingest_records  CASCADE;
     `);
 
     console.log('[seed] applying migrations...');
@@ -49,6 +54,8 @@ async function run() {
     await client.query(schema1);
     const schema2 = fs.readFileSync(path.join(__dirname, '..', 'migrations', '002_schema.sql'), 'utf8');
     await client.query(schema2);
+    const schema3 = fs.readFileSync(path.join(__dirname, '..', 'migrations', '003_schema.sql'), 'utf8');
+    await client.query(schema3);
 
     console.log('[seed] inserting deals...');
     const deals = [

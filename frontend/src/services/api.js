@@ -103,6 +103,22 @@ function crud(base) {
   };
 }
 
+// Apply pass 7 — backlog CRUD entities (cap-tables, LP comms templates,
+// KPI ingest sources + records).
+export const capTablesApi         = crud('cap-tables');
+export const lpCommsTemplatesApi  = {
+  ...crud('lp-comms-templates'),
+  render: (id, variables) => request(`/lp-comms-templates/${id}/render`, {
+    method: 'POST',
+    body: JSON.stringify({ variables: variables || {} }),
+  }),
+};
+export const kpiIngestSourcesApi  = {
+  ...crud('kpi-ingest-sources'),
+  markRun: (id) => request(`/kpi-ingest-sources/${id}/mark-run`, { method: 'POST' }),
+};
+export const kpiIngestRecordsApi  = crud('kpi-ingest-records');
+
 // 18 VC CRUD entities
 export const dealsApi             = crud('deals');
 export const foundersApi          = crud('founders');
@@ -148,6 +164,13 @@ export const aiFounderRedflagExtract = (body) => request('/ai/founder-redflag-ex
 export const aiCapTableImpact        = (body) => request('/ai/cap-table-impact',        { method: 'POST', body: JSON.stringify(body || {}) });
 export const aiDistributionWaterfall = (body) => request('/ai/distribution-waterfall',  { method: 'POST', body: JSON.stringify(body || {}) });
 export const aiFundStrategyBrief     = (body) => request('/ai/fund-strategy-brief',     { method: 'POST', body: JSON.stringify(body || {}) });
+
+// Apply pass 7 — 5 new AI verbs.
+export const aiPitchDeckExtract        = (body) => request('/ai/pitch-deck-extract',         { method: 'POST', body: JSON.stringify(body || {}) });
+export const aiDdQaGenerate            = (body) => request('/ai/dd-qa-generate',             { method: 'POST', body: JSON.stringify(body || {}) });
+export const aiMarketSizeEstimate      = (body) => request('/ai/market-size-estimate',       { method: 'POST', body: JSON.stringify(body || {}) });
+export const aiFounderBackgroundSummary = (body) => request('/ai/founder-background-summary',{ method: 'POST', body: JSON.stringify(body || {}) });
+export const aiThesisFitScore          = (body) => request('/ai/thesis-fit-score',           { method: 'POST', body: JSON.stringify(body || {}) });
 
 // AI history
 export const getAIHistory = (feature, limit = 25) => {

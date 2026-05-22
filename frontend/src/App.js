@@ -42,6 +42,19 @@ import AICapTableImpactPage from './pages/AICapTableImpactPage';
 import AIDistributionWaterfallPage from './pages/AIDistributionWaterfallPage';
 import AIFundStrategyBriefPage from './pages/AIFundStrategyBriefPage';
 
+// Apply pass 7 — backlog AI verb pages
+import AIPitchDeckExtractPage from './pages/AIPitchDeckExtractPage';
+import AIDdQaGeneratePage from './pages/AIDdQaGeneratePage';
+import AIMarketSizeEstimatePage from './pages/AIMarketSizeEstimatePage';
+import AIFounderBackgroundSummaryPage from './pages/AIFounderBackgroundSummaryPage';
+import AIThesisFitScorePage from './pages/AIThesisFitScorePage';
+
+// Apply pass 7 — backlog CRUD pages
+import CapTablesPage from './pages/CapTablesPage';
+import LpCommsTemplatesPage from './pages/LpCommsTemplatesPage';
+import KpiIngestSourcesPage from './pages/KpiIngestSourcesPage';
+import KpiIngestRecordsPage from './pages/KpiIngestRecordsPage';
+
 // Admin
 import WebhooksPage from './pages/WebhooksPage';
 
@@ -52,6 +65,9 @@ import LoginPage from './pages/LoginPage';
 import { getToken } from './services/api';
 
 import './App.css';
+
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
 
 function RequireAuth({ children }) {
   const location = useLocation();
@@ -69,6 +85,9 @@ function ShellRoutes() {
         <Topbar />
         <div style={{ padding: '24px 32px' }}>
           <Routes>
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
             <Route path="/" element={<Dashboard />} />
 
             <Route path="/deals"              element={<DealsPage />} />
@@ -106,6 +125,19 @@ function ShellRoutes() {
             <Route path="/ai/cap-table-impact"        element={<AICapTableImpactPage />} />
             <Route path="/ai/distribution-waterfall"  element={<AIDistributionWaterfallPage />} />
             <Route path="/ai/fund-strategy-brief"     element={<AIFundStrategyBriefPage />} />
+
+            {/* Apply pass 7 — backlog AI verb routes */}
+            <Route path="/ai/pitch-deck-extract"         element={<AIPitchDeckExtractPage />} />
+            <Route path="/ai/dd-qa-generate"             element={<AIDdQaGeneratePage />} />
+            <Route path="/ai/market-size-estimate"       element={<AIMarketSizeEstimatePage />} />
+            <Route path="/ai/founder-background-summary" element={<AIFounderBackgroundSummaryPage />} />
+            <Route path="/ai/thesis-fit-score"           element={<AIThesisFitScorePage />} />
+
+            {/* Apply pass 7 — backlog CRUD routes */}
+            <Route path="/cap-tables"          element={<CapTablesPage />} />
+            <Route path="/lp-comms-templates"  element={<LpCommsTemplatesPage />} />
+            <Route path="/kpi-ingest-sources"  element={<KpiIngestSourcesPage />} />
+            <Route path="/kpi-ingest-records"  element={<KpiIngestRecordsPage />} />
 
             <Route path="/webhooks" element={<WebhooksPage />} />
 

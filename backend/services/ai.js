@@ -490,6 +490,131 @@ async function fundStrategyBrief(fund, snapshot = {}) {
   return safeJsonParse(r, { summary: typeof r === 'string' ? r : 'No response', sector_concentration: [] });
 }
 
+// ──────────────────────────────────────────────────────────────
+// AI Verb 17: Pitch Deck Extract (LLM-only over caller-supplied text)
+// No PDF/PPTX parsing on this side — the caller is expected to have
+// already converted the deck to plaintext (deck export, OCR, etc.).
+// ──────────────────────────────────────────────────────────────
+async function pitchDeckExtract(deckText, context = {}) {
+  const sys = `${SYSTEM_PROMPT} Extract structured fields from a pitch deck. Return strict JSON:
+{
+  "company_name": string,
+  "one_liner": string,
+  "stage": "pre_seed"|"seed"|"series_a"|"series_b"|"series_c"|"series_d"|"growth"|"unknown",
+  "sector": string,
+  "problem": string,
+  "solution": string,
+  "market_size_text": string,
+  "business_model": string,
+  "traction_metrics": [{ "metric": string, "value": string, "period": string }],
+  "team": [{ "name": string, "role": string, "background": string }],
+  "ask": { "round_size_usd": number, "valuation_usd": number, "use_of_funds": [string] },
+  "competitors": [string],
+  "extraction_confidence": number,
+  "missing_fields": [string],
+  "summary": string
+}`;
+  const usr = `Pitch deck text:\n${deckText}\n\nContext:\n${JSON.stringify(context, null, 2)}`;
+  const r = await callOpenRouter(sys, usr);
+  return safeJsonParse(r, { summary: typeof r === 'string' ? r : 'No response', traction_metrics: [], team: [], missing_fields: [] });
+}
+
+// ──────────────────────────────────────────────────────────────
+// AI Verb 18: DD Q&A Generate
+// ──────────────────────────────────────────────────────────────
+async function ddQaGenerate(sector, stage, context = {}) {
+  const sys = `${SYSTEM_PROMPT} Generate a due-diligence question set tailored to sector + stage. Return strict JSON:
+{
+  "sector": string,
+  "stage": string,
+  "categories": [{
+    "category": "product"|"market"|"team"|"financials"|"legal"|"tech"|"customers"|"competition"|"governance"|"esg",
+    "questions": [{
+      "q": string,
+      "priority": "p0"|"p1"|"p2",
+      "owner_role": string,
+      "expected_artifact": string
+    }]
+  }],
+  "red_flag_screens": [string],
+  "data_room_checklist": [string],
+  "estimated_dd_days": number,
+  "summary": string
+}`;
+  const usr = `Sector: ${sector}\nStage: ${stage}\nContext:\n${JSON.stringify(context, null, 2)}`;
+  const r = await callOpenRouter(sys, usr);
+  return safeJsonParse(r, { summary: typeof r === 'string' ? r : 'No response', categories: [] });
+}
+
+// ──────────────────────────────────────────────────────────────
+// AI Verb 19: Market Size Estimate (TAM/SAM/SOM)
+// ──────────────────────────────────────────────────────────────
+async function marketSizeEstimate(productOrSector, context = {}) {
+  const sys = `${SYSTEM_PROMPT} Estimate TAM/SAM/SOM with explicit assumptions. Return strict JSON:
+{
+  "product_or_sector": string,
+  "tam": { "value_usd": number, "method": "top_down"|"bottom_up"|"mixed", "assumptions": [string] },
+  "sam": { "value_usd": number, "filters_applied": [string], "assumptions": [string] },
+  "som": { "value_usd": number, "horizon_years": number, "share_assumption_pct": number, "assumptions": [string] },
+  "growth_rate_pct_cagr": number,
+  "key_sensitivities": [{ "driver": string, "swing_pct": number }],
+  "confidence": "low"|"medium"|"high",
+  "summary": string
+}`;
+  const usr = `Product / sector: ${productOrSector}\nContext:\n${JSON.stringify(context, null, 2)}`;
+  const r = await callOpenRouter(sys, usr);
+  return safeJsonParse(r, { summary: typeof r === 'string' ? r : 'No response', key_sensitivities: [] });
+}
+
+// ──────────────────────────────────────────────────────────────
+// AI Verb 20: Founder Background Summary (fuller bio synth)
+// ──────────────────────────────────────────────────────────────
+async function founderBackgroundSummary(founderName, material, context = {}) {
+  const sys = `${SYSTEM_PROMPT} Synthesize a fund-grade founder background brief from bio / LinkedIn / press material. Return strict JSON:
+{
+  "founder": string,
+  "elevator_bio": string,
+  "career_arc": [{ "role": string, "company": string, "years": string, "notable": string }],
+  "education": [{ "degree": string, "institution": string, "field": string, "year": string }],
+  "domain_expertise": [string],
+  "operator_signal": "weak"|"adequate"|"strong"|"exceptional",
+  "network_strength": "low"|"medium"|"high",
+  "prior_exits": [{ "company": string, "outcome": string, "value_usd": number }],
+  "thesis_fit_signals": [string],
+  "follow_up_diligence": [string],
+  "summary": string
+}`;
+  const usr = `Founder name: ${founderName}\nMaterial:\n${material}\n\nContext:\n${JSON.stringify(context, null, 2)}`;
+  const r = await callOpenRouter(sys, usr);
+  return safeJsonParse(r, { summary: typeof r === 'string' ? r : 'No response', career_arc: [], education: [] });
+}
+
+// ──────────────────────────────────────────────────────────────
+// AI Verb 21: Thesis-Fit Score
+// ──────────────────────────────────────────────────────────────
+async function thesisFitScore(deal, thesis, context = {}) {
+  const sys = `${SYSTEM_PROMPT} Score a deal vs a fund thesis. Return strict JSON:
+{
+  "deal": string,
+  "fund_thesis": string,
+  "dimensions": [{
+    "dimension": "sector"|"stage"|"geography"|"check_size"|"founder_profile"|"market_size"|"moat"|"timing",
+    "score_0_100": number,
+    "weight_pct": number,
+    "rationale": string
+  }],
+  "overall_score_0_100": number,
+  "verdict": "strong_fit"|"adjacent_fit"|"weak_fit"|"off_thesis",
+  "must_haves_present": [string],
+  "must_haves_missing": [string],
+  "recommended_next_step": "ic_fast_track"|"deeper_diligence"|"watch"|"pass",
+  "summary": string
+}`;
+  const usr = `Deal:\n${JSON.stringify(deal, null, 2)}\n\nFund thesis:\n${thesis}\n\nContext:\n${JSON.stringify(context, null, 2)}`;
+  const r = await callOpenRouter(sys, usr);
+  return safeJsonParse(r, { summary: typeof r === 'string' ? r : 'No response', dimensions: [] });
+}
+
 module.exports = {
   callOpenRouter,
   safeJsonParse,
@@ -509,4 +634,9 @@ module.exports = {
   capTableImpact,
   distributionWaterfall,
   fundStrategyBrief,
+  pitchDeckExtract,
+  ddQaGenerate,
+  marketSizeEstimate,
+  founderBackgroundSummary,
+  thesisFitScore,
 };
