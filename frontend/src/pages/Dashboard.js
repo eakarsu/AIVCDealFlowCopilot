@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDashboardStats } from '../services/api';
+import RecordDetailModal from '../components/RecordDetailModal';
 
 const FEATURES = [
   { path: '/deals',             title: 'Deals',             icon: 'D', color: '#3b82f6', desc: 'Pipeline from sourced through closed.' },
@@ -44,10 +45,32 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [err, setErr] = useState(null);
+  const [selectedStat, setSelectedStat] = useState(null);
 
   useEffect(() => {
     getDashboardStats().then(setStats).catch((e) => setErr(e.message));
   }, []);
+
+  const statCards = stats ? [
+    { label: 'Deals', value: stats.deals?.total ?? '—', sub: `${stats.deals?.diligence ?? 0} in diligence · ${stats.deals?.closed ?? 0} closed`, details: stats.deals },
+    { label: 'Founders', value: stats.founders?.total ?? '—', sub: `${stats.founders?.active ?? 0} active`, details: stats.founders },
+    { label: 'Companies', value: stats.companies?.total ?? '—', sub: `${stats.companies?.portfolio ?? 0} portfolio`, details: stats.companies },
+    { label: 'Funds', value: stats.funds?.total ?? '—', sub: `${stats.funds?.investing ?? 0} investing`, details: stats.funds },
+    { label: 'LP Reports', value: stats.lp_reports?.total ?? '—', sub: `${stats.lp_reports?.distributed ?? 0} distributed`, details: stats.lp_reports },
+    { label: 'IC Memos', value: stats.ic_memos?.total ?? '—', sub: `${stats.ic_memos?.in_review ?? 0} in review · ${stats.ic_memos?.approved ?? 0} approved`, details: stats.ic_memos },
+    { label: 'Investments', value: stats.investments?.total ?? '—', sub: `$${Number(stats.investments?.total_amount || 0).toLocaleString()}`, details: stats.investments },
+    { label: 'Follow-Ons', value: stats.follow_ons?.total ?? '—', sub: `${stats.follow_ons?.considering ?? 0} considering`, details: stats.follow_ons },
+    { label: 'KPI Metrics', value: stats.portfolio_metrics?.total ?? '—', sub: 'datapoints', details: stats.portfolio_metrics },
+    { label: 'Board Meetings', value: stats.board_meetings?.total ?? '—', sub: 'logged', details: stats.board_meetings },
+    { label: 'Term Sheets', value: stats.term_sheets?.total ?? '—', sub: `${stats.term_sheets?.signed ?? 0} signed · ${stats.term_sheets?.sent ?? 0} sent`, details: stats.term_sheets },
+    { label: 'Capital Calls', value: stats.capital_calls?.total ?? '—', sub: `${stats.capital_calls?.issued ?? 0} issued · ${stats.capital_calls?.late ?? 0} late`, details: stats.capital_calls },
+    { label: 'Distributions', value: stats.distributions?.total ?? '—', sub: `$${Number(stats.distributions?.total_amount || 0).toLocaleString()}`, details: stats.distributions },
+    { label: 'Advisors', value: stats.advisors?.total ?? '—', sub: `${stats.advisors?.active ?? 0} active`, details: stats.advisors },
+    { label: 'Intros', value: stats.intros?.total ?? '—', sub: `${stats.intros?.pending ?? 0} pending · ${stats.intros?.completed ?? 0} completed`, details: stats.intros },
+    { label: 'Pipeline Notes', value: stats.pipeline_notes?.total ?? '—', sub: `${stats.pipeline_notes?.positive ?? 0} pos · ${stats.pipeline_notes?.negative ?? 0} neg`, details: stats.pipeline_notes },
+    { label: 'Exits', value: stats.exits?.total ?? '—', sub: `$${Number(stats.exits?.total_value || 0).toLocaleString()}`, details: stats.exits },
+    { label: 'Audit Log', value: stats.audit_log?.total ?? '—', sub: 'entries', details: stats.audit_log },
+  ] : [];
 
   return (
     <div>
@@ -60,24 +83,24 @@ export default function Dashboard() {
 
       {stats && (
         <div className="stats-grid">
-          <div className="stat"><div className="stat-label">Deals</div><div className="stat-value">{stats.deals?.total ?? '—'}</div><div className="stat-sub">{stats.deals?.diligence ?? 0} in diligence · {stats.deals?.closed ?? 0} closed</div></div>
-          <div className="stat"><div className="stat-label">Founders</div><div className="stat-value">{stats.founders?.total ?? '—'}</div><div className="stat-sub">{stats.founders?.active ?? 0} active</div></div>
-          <div className="stat"><div className="stat-label">Companies</div><div className="stat-value">{stats.companies?.total ?? '—'}</div><div className="stat-sub">{stats.companies?.portfolio ?? 0} portfolio</div></div>
-          <div className="stat"><div className="stat-label">Funds</div><div className="stat-value">{stats.funds?.total ?? '—'}</div><div className="stat-sub">{stats.funds?.investing ?? 0} investing</div></div>
-          <div className="stat"><div className="stat-label">LP Reports</div><div className="stat-value">{stats.lp_reports?.total ?? '—'}</div><div className="stat-sub">{stats.lp_reports?.distributed ?? 0} distributed</div></div>
-          <div className="stat"><div className="stat-label">IC Memos</div><div className="stat-value">{stats.ic_memos?.total ?? '—'}</div><div className="stat-sub">{stats.ic_memos?.in_review ?? 0} in review · {stats.ic_memos?.approved ?? 0} approved</div></div>
-          <div className="stat"><div className="stat-label">Investments</div><div className="stat-value">{stats.investments?.total ?? '—'}</div><div className="stat-sub">${Number(stats.investments?.total_amount || 0).toLocaleString()}</div></div>
-          <div className="stat"><div className="stat-label">Follow-Ons</div><div className="stat-value">{stats.follow_ons?.total ?? '—'}</div><div className="stat-sub">{stats.follow_ons?.considering ?? 0} considering</div></div>
-          <div className="stat"><div className="stat-label">KPI Metrics</div><div className="stat-value">{stats.portfolio_metrics?.total ?? '—'}</div><div className="stat-sub">datapoints</div></div>
-          <div className="stat"><div className="stat-label">Board Meetings</div><div className="stat-value">{stats.board_meetings?.total ?? '—'}</div><div className="stat-sub">logged</div></div>
-          <div className="stat"><div className="stat-label">Term Sheets</div><div className="stat-value">{stats.term_sheets?.total ?? '—'}</div><div className="stat-sub">{stats.term_sheets?.signed ?? 0} signed · {stats.term_sheets?.sent ?? 0} sent</div></div>
-          <div className="stat"><div className="stat-label">Capital Calls</div><div className="stat-value">{stats.capital_calls?.total ?? '—'}</div><div className="stat-sub">{stats.capital_calls?.issued ?? 0} issued · {stats.capital_calls?.late ?? 0} late</div></div>
-          <div className="stat"><div className="stat-label">Distributions</div><div className="stat-value">{stats.distributions?.total ?? '—'}</div><div className="stat-sub">${Number(stats.distributions?.total_amount || 0).toLocaleString()}</div></div>
-          <div className="stat"><div className="stat-label">Advisors</div><div className="stat-value">{stats.advisors?.total ?? '—'}</div><div className="stat-sub">{stats.advisors?.active ?? 0} active</div></div>
-          <div className="stat"><div className="stat-label">Intros</div><div className="stat-value">{stats.intros?.total ?? '—'}</div><div className="stat-sub">{stats.intros?.pending ?? 0} pending · {stats.intros?.completed ?? 0} completed</div></div>
-          <div className="stat"><div className="stat-label">Pipeline Notes</div><div className="stat-value">{stats.pipeline_notes?.total ?? '—'}</div><div className="stat-sub">{stats.pipeline_notes?.positive ?? 0} pos · {stats.pipeline_notes?.negative ?? 0} neg</div></div>
-          <div className="stat"><div className="stat-label">Exits</div><div className="stat-value">{stats.exits?.total ?? '—'}</div><div className="stat-sub">${Number(stats.exits?.total_value || 0).toLocaleString()}</div></div>
-          <div className="stat"><div className="stat-label">Audit Log</div><div className="stat-value">{stats.audit_log?.total ?? '—'}</div><div className="stat-sub">entries</div></div>
+          {statCards.map((card) => (
+            <div
+              key={card.label}
+              className="stat clickable-card"
+              tabIndex={0}
+              onClick={() => setSelectedStat({ label: card.label, ...(card.details || {}) })}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setSelectedStat({ label: card.label, ...(card.details || {}) });
+                }
+              }}
+            >
+              <div className="stat-label">{card.label}</div>
+              <div className="stat-value">{card.value}</div>
+              <div className="stat-sub">{card.sub}</div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -96,6 +119,14 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+
+      {selectedStat && (
+        <RecordDetailModal
+          record={selectedStat}
+          title={`${selectedStat.label} Details`}
+          onClose={() => setSelectedStat(null)}
+        />
+      )}
     </div>
   );
 }

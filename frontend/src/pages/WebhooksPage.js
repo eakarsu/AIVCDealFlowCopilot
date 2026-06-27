@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { webhooksApi, isCommander } from '../services/api';
+import RecordDetailModal from '../components/RecordDetailModal';
 
 export default function WebhooksPage() {
   const [rows, setRows] = useState([]);
@@ -9,6 +10,7 @@ export default function WebhooksPage() {
   const [deliveries, setDeliveries] = useState({ id: null, rows: [], loading: false });
   const [testResult, setTestResult] = useState(null);
   const [testBusy, setTestBusy] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState(null);
 
   const commander = isCommander();
 
@@ -32,9 +34,10 @@ export default function WebhooksPage() {
   };
   const handleDelete = async (row) => {
     if (!window.confirm(`Delete webhook ${row.name || row.url}?`)) return;
-    try { await webhooksApi.remove(row.id); load(); } catch (e) { alert(e.message); }
+    try { await webhooksApi.remove(row.id); setSelectedDetail(null); load(); } catch (e) { alert(e.message); }
   };
   const handleEdit = (row) => {
+    setSelectedDetail(null);
     setEditing(row);
     setDraft({
       name: row.name || '',
@@ -127,25 +130,27 @@ export default function WebhooksPage() {
       <div className="table-wrap">
         <table>
           <thead>
-            <tr><th>ID</th><th>Name</th><th>URL</th><th>Events</th><th>Active</th><th>Actions</th></tr>
+            <tr><th>ID</th><th>Name</th><th>URL</th><th>Events</th><th>Active</th></tr>
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id}>
+              <tr
+                key={r.id}
+                className="clickable-row"
+                tabIndex={0}
+                onClick={() => setSelectedDetail(r)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    setSelectedDetail(r);
+                  }
+                }}
+              >
                 <td>{r.id}</td>
                 <td>{r.name}</td>
                 <td style={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.url}</td>
                 <td>{r.events}</td>
                 <td>{String(r.active)}</td>
-                <td>
-                  <button className="btn secondary" onClick={() => openDeliveries(r)} style={{ marginRight: 6 }}>Deliveries</button>
-                  {commander && (
-                    <>
-                      <button className="btn secondary" onClick={() => handleEdit(r)} style={{ marginRight: 6 }}>Edit</button>
-                      <button className="btn danger" onClick={() => handleDelete(r)}>Delete</button>
-                    </>
-                  )}
-                </td>
               </tr>
             ))}
           </tbody>
@@ -165,7 +170,18 @@ export default function WebhooksPage() {
               <thead><tr><th>ID</th><th>Event</th><th>Status</th><th>At</th></tr></thead>
               <tbody>
                 {deliveries.rows.map((d) => (
-                  <tr key={d.id}>
+                  <tr
+                    key={d.id}
+                    className="clickable-row"
+                    tabIndex={0}
+                    onClick={() => setSelectedDetail(d)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setSelectedDetail(d);
+                      }
+                    }}
+                  >
                     <td>{d.id}</td>
                     <td>{d.event}</td>
                     <td>{d.status_code}</td>
@@ -176,6 +192,17 @@ export default function WebhooksPage() {
             </table>
           )}
         </div>
+      )}
+
+      {selectedDetail && (
+        <RecordDetailModal
+          record={selectedDetail}
+          title={selectedDetail.name || selectedDetail.event || 'Webhook Details'}
+          actions={selectedDetail.url ? [{ label: 'Deliveries', variant: 'secondary', onClick: () => { const row = selectedDetail; setSelectedDetail(null); openDeliveries(row); } }] : []}
+          onClose={() => setSelectedDetail(null)}
+          onEdit={commander && selectedDetail.url ? () => handleEdit(selectedDetail) : null}
+          onDelete={commander && selectedDetail.url ? () => handleDelete(selectedDetail) : null}
+        />
       )}
     </div>
   );

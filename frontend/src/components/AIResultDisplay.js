@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import RecordDetailModal from './RecordDetailModal';
 
 // ────────────────────────────────────────────────
 // Field semantics — how to render each key
@@ -166,7 +167,7 @@ function CompactList({ items }) {
 }
 
 // Uniform array → table
-function SmartTable({ rows, keys }) {
+function SmartTable({ rows, keys, onSelect }) {
   return (
     <div className="ai-table-wrap">
       <table className="ai-table">
@@ -177,7 +178,18 @@ function SmartTable({ rows, keys }) {
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i}>
+            <tr
+              key={i}
+              className="clickable-row"
+              tabIndex={0}
+              onClick={() => onSelect?.(row)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  onSelect?.(row);
+                }
+              }}
+            >
               {keys.map((k) => (
                 <td key={k}><SmartCell k={k} v={row[k]} /></td>
               ))}
@@ -190,19 +202,45 @@ function SmartTable({ rows, keys }) {
 }
 
 // Non-uniform array → stacked cards
-function CardList({ rows }) {
+function CardList({ rows, onSelect }) {
   return (
     <div className="ai-card-grid">
       {rows.map((item, i) => {
         if (!isPlainObject(item)) {
-          return <div key={i} className="ai-card"><div className="ai-card-body">{String(item)}</div></div>;
+          return (
+            <div
+              key={i}
+              className="ai-card clickable-card"
+              tabIndex={0}
+              onClick={() => onSelect?.({ value: item })}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  onSelect?.({ value: item });
+                }
+              }}
+            >
+              <div className="ai-card-body">{String(item)}</div>
+            </div>
+          );
         }
         const titleKey = ['name', 'title', 'phase', 'leg', 'driver', 'risk', 'factor', 'mission', 'decision', 'actor', 'target_id', 'platform', 'role', 'item', 'area', 'location', 'shipment_id', 'asset_id', 'designation']
           .find((k) => item[k] != null);
         const metaKey = ['priority', 'severity', 'urgency', 'impact', 'likelihood', 'confidence', 'rank', 'score', 'value', 'collateral_risk', 'magnitude', 'compliant']
           .find((k) => item[k] != null);
         return (
-          <div key={i} className="ai-card">
+          <div
+            key={i}
+            className="ai-card clickable-card"
+            tabIndex={0}
+            onClick={() => onSelect?.(item)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                onSelect?.(item);
+              }
+            }}
+          >
             <div className="ai-card-head">
               <strong>{titleKey ? String(item[titleKey]) : `Item ${i + 1}`}</strong>
               {metaKey && <SmartCell k={metaKey} v={item[metaKey]} />}
@@ -236,7 +274,7 @@ const PROSE_KEYS = new Set([
   'recommended_action', 'mitigation', 'indicator', 'notable_activity',
 ]);
 
-function Section({ k, v }) {
+function Section({ k, v, onSelect }) {
   const title = titleCase(k);
   let count = null;
   let body;
@@ -249,7 +287,7 @@ function Section({ k, v }) {
       body = <Tags items={v} />;
     } else {
       const uniformKeys = uniformObjectKeys(v);
-      body = uniformKeys ? <SmartTable rows={v} keys={uniformKeys} /> : <CardList rows={v} />;
+      body = uniformKeys ? <SmartTable rows={v} keys={uniformKeys} onSelect={onSelect} /> : <CardList rows={v} onSelect={onSelect} />;
     }
   } else if (isPlainObject(v)) {
     body = <CompactKV obj={v} />;
@@ -389,6 +427,7 @@ function nowStamp() {
 }
 
 export default function AIResultDisplay({ result: rawResult, loading, error, feature, title }) {
+  const [selectedDetail, setSelectedDetail] = useState(null);
   const result = useMemo(() => rescueJson(rawResult), [rawResult]);
   const json = useMemo(() => (result ? JSON.stringify(result, null, 2) : ''), [result]);
   const runId = useMemo(() => (rawResult ? genRunId() : ''), [rawResult]);
@@ -495,7 +534,14 @@ export default function AIResultDisplay({ result: rawResult, loading, error, fea
 
         {sectionEntries.length > 0 && (
           <div className="ai-sections">
-            {sectionEntries.map(([k, v]) => <Section key={k} k={k} v={v} />)}
+            {sectionEntries.map(([k, v]) => (
+              <Section
+                key={k}
+                k={k}
+                v={v}
+                onSelect={(record) => setSelectedDetail(record)}
+              />
+            ))}
           </div>
         )}
 
@@ -507,6 +553,14 @@ export default function AIResultDisplay({ result: rawResult, loading, error, fea
       </div>
 
       <div className="ai-classbar">UNCLASSIFIED // TABLETOP EXERCISE — FOR TRAINING USE ONLY</div>
+
+      {selectedDetail && (
+        <RecordDetailModal
+          record={selectedDetail}
+          title="AI Result Details"
+          onClose={() => setSelectedDetail(null)}
+        />
+      )}
     </div>
   );
 }

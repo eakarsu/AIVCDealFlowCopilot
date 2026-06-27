@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { canWrite } from '../services/api';
+import RecordDetailModal from './RecordDetailModal';
 
 /**
  * Generic CRUD page.
@@ -26,6 +27,7 @@ export default function CrudPage({ title, subtitle, api, fields, statusKey, allo
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
   const [editing, setEditing] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState({});
   const [search, setSearch] = useState('');
@@ -64,7 +66,7 @@ export default function CrudPage({ title, subtitle, api, fields, statusKey, allo
   useEffect(() => { setPage(1); }, [search]);
 
   const openCreate = () => { setDraft(emptyDraft()); setCreating(true); setEditing(null); };
-  const openEdit = (row) => { setDraft({ ...row }); setEditing(row); setCreating(false); };
+  const openEdit = (row) => { setDraft({ ...row }); setEditing(row); setCreating(false); setSelectedRow(null); };
   const closeModal = () => { setCreating(false); setEditing(null); setDraft({}); };
 
   const handleSave = async () => {
@@ -78,7 +80,7 @@ export default function CrudPage({ title, subtitle, api, fields, statusKey, allo
 
   const handleDelete = async (row) => {
     if (!window.confirm(`Delete ${row[fields[0].key] || row.id}?`)) return;
-    try { await api.remove(row.id); load(); } catch (e) { alert(e.message); }
+    try { await api.remove(row.id); setSelectedRow(null); load(); } catch (e) { alert(e.message); }
   };
 
   const setField = (k, v) => setDraft((d) => ({ ...d, [k]: v }));
@@ -152,6 +154,12 @@ export default function CrudPage({ title, subtitle, api, fields, statusKey, allo
     } finally {
       setAttachLoading(false);
     }
+  };
+  const openSelectedAttachments = () => {
+    if (!selectedRow) return;
+    const row = selectedRow;
+    setSelectedRow(null);
+    openAttachments(row);
   };
   const closeAttachments = () => { setAttachRow(null); setAttachList([]); setAttachError(null); };
   const handleAttachFile = async (file) => {
@@ -237,26 +245,23 @@ export default function CrudPage({ title, subtitle, api, fields, statusKey, allo
               <thead>
                 <tr>
                   {fields.map((f) => <th key={f.key}>{f.label}</th>)}
-                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {pagedRows.map((row) => (
-                  <tr key={row.id}>
+                  <tr
+                    key={row.id}
+                    className="clickable-row"
+                    tabIndex={0}
+                    onClick={() => setSelectedRow(row)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setSelectedRow(row);
+                      }
+                    }}
+                  >
                     {fields.map((f) => <td key={f.key}>{renderCell(row, f)}</td>)}
-                    <td style={{ textAlign: 'right' }}>
-                      {allowAttachments && (
-                        <button className="btn secondary" onClick={() => openAttachments(row)} style={{ marginRight: 6 }}>
-                          Files
-                        </button>
-                      )}
-                      {writer && (
-                        <>
-                          <button className="btn secondary" onClick={() => openEdit(row)} style={{ marginRight: 6 }}>Edit</button>
-                          <button className="btn danger" onClick={() => handleDelete(row)}>Delete</button>
-                        </>
-                      )}
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -403,6 +408,17 @@ export default function CrudPage({ title, subtitle, api, fields, statusKey, allo
             </div>
           </div>
         </div>
+      )}
+
+      {selectedRow && (
+        <RecordDetailModal
+          record={selectedRow}
+          title={`${title} Details`}
+          actions={allowAttachments ? [{ label: 'Files', variant: 'secondary', onClick: openSelectedAttachments }] : []}
+          onClose={() => setSelectedRow(null)}
+          onEdit={writer ? () => openEdit(selectedRow) : null}
+          onDelete={writer ? () => handleDelete(selectedRow) : null}
+        />
       )}
     </div>
   );

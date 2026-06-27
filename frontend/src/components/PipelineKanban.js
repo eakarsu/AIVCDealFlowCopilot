@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { API_BASE, getToken } from '../services/api';
+import RecordDetailModal from './RecordDetailModal';
 
 const STAGE_LABELS = {
   pre_seed: 'Pre-Seed',
@@ -31,6 +32,7 @@ export default function PipelineKanban() {
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+  const [selectedDeal, setSelectedDeal] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -105,6 +107,15 @@ export default function PipelineKanban() {
               {col.deals.map((deal) => (
                 <div
                   key={deal.deal_id}
+                  className="clickable-card"
+                  tabIndex={0}
+                  onClick={() => setSelectedDeal(deal)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      setSelectedDeal(deal);
+                    }
+                  }}
                   style={{
                     background: '#111827',
                     border: '1px solid #1f2937',
@@ -138,6 +149,13 @@ export default function PipelineKanban() {
           </div>
         );
       })}
+      {selectedDeal && (
+        <RecordDetailModal
+          record={selectedDeal}
+          title={selectedDeal.company_name || selectedDeal.deal_id || 'Deal Details'}
+          onClose={() => setSelectedDeal(null)}
+        />
+      )}
     </div>
   );
 }
