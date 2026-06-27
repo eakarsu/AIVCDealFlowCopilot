@@ -4,9 +4,28 @@ import { logout, getStoredUser } from '../services/api';
 
 const PIPELINE_LINKS = [
   { to: '/deals',            label: 'Deals' },
+  { to: '/diligence-tasks',  label: 'Diligence Tasks' },
   { to: '/pipeline-notes',   label: 'Pipeline Notes' },
   { to: '/intros',           label: 'Intros' },
   { to: '/term-sheets',      label: 'Term Sheets' },
+];
+
+const NEW_FEATURE_LINKS = [
+  { to: '/diligence-tasks',         label: 'Diligence Tasks' },
+  { to: '/data-room-documents',     label: 'Data Room Documents' },
+  { to: '/lp-contacts',             label: 'LP Contacts' },
+  { to: '/fundraising-pipeline',    label: 'Fundraising Pipeline' },
+  { to: '/portfolio-updates',       label: 'Portfolio Updates' },
+  { to: '/reserve-plans',           label: 'Reserve Plans' },
+  { to: '/fund-expenses',           label: 'Fund Expenses' },
+  { to: '/access-rules',            label: 'Access Rules' },
+  { to: '/saved-searches',          label: 'Saved Searches' },
+  { to: '/global-search',           label: 'Global Search' },
+  { to: '/collaboration-comments',  label: 'Comments' },
+];
+
+const DATA_ROOM_LINKS = [
+  { to: '/data-room-documents', label: 'Data Room Documents' },
 ];
 
 const COMPANIES_LINKS = [
@@ -32,10 +51,18 @@ const PORTFOLIO_LINKS = [
 ];
 
 const LP_LINKS = [
+  { to: '/lp-contacts',          label: 'LP Contacts' },
+  { to: '/fundraising-pipeline', label: 'Fundraising Pipeline' },
   { to: '/lp-reports',          label: 'LP Reports' },
   { to: '/lp-comms-templates',  label: 'LP Comms Templates' },
   { to: '/capital-calls',       label: 'Capital Calls' },
   { to: '/distributions',       label: 'Distributions' },
+];
+
+const FUND_OPS_LINKS = [
+  { to: '/portfolio-updates', label: 'Portfolio Updates' },
+  { to: '/reserve-plans',     label: 'Reserve Plans' },
+  { to: '/fund-expenses',     label: 'Fund Expenses' },
 ];
 
 const CAP_TABLE_LINKS = [
@@ -45,6 +72,7 @@ const CAP_TABLE_LINKS = [
 const GOVERNANCE_LINKS = [
   { to: '/board-meetings',   label: 'Board Meetings' },
   { to: '/advisors',         label: 'Advisors' },
+  { to: '/access-rules',     label: 'Access Rules' },
   { to: '/audit-log',        label: 'Audit Log' },
 ];
 
@@ -89,8 +117,14 @@ export default function Sidebar() {
 
       <NavLink to="/" end>Overview</NavLink>
 
+      <div className="sidebar-group-label">New Features</div>
+      {NEW_FEATURE_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
       <div className="sidebar-group-label">Pipeline</div>
       {PIPELINE_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">Data Room</div>
+      {DATA_ROOM_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
 
       <div className="sidebar-group-label">Companies</div>
       {COMPANIES_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
@@ -106,6 +140,9 @@ export default function Sidebar() {
 
       <div className="sidebar-group-label">Portfolio</div>
       {PORTFOLIO_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
+
+      <div className="sidebar-group-label">Fund Ops</div>
+      {FUND_OPS_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
 
       <div className="sidebar-group-label">LP Reporting</div>
       {LP_LINKS.map((l) => <NavLink key={l.to} to={l.to}>{l.label}</NavLink>)}
@@ -124,6 +161,11 @@ export default function Sidebar() {
 
       <div className="sidebar-group-label">Analytics</div>
       <NavLink to="/custom-views">VC Analytics</NavLink>
+      <NavLink to="/global-search">Global Search</NavLink>
+      <NavLink to="/saved-searches">Saved Searches</NavLink>
+
+      <div className="sidebar-group-label">Collaboration</div>
+      <NavLink to="/collaboration-comments">Comments</NavLink>
 
       <div className="sidebar-group-label">Admin</div>
       <NavLink to="/webhooks">Webhooks</NavLink>

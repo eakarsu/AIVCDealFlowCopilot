@@ -54,6 +54,17 @@ import CapTablesPage from './pages/CapTablesPage';
 import LpCommsTemplatesPage from './pages/LpCommsTemplatesPage';
 import KpiIngestSourcesPage from './pages/KpiIngestSourcesPage';
 import KpiIngestRecordsPage from './pages/KpiIngestRecordsPage';
+import DataRoomDocumentsPage from './pages/DataRoomDocumentsPage';
+import DiligenceTasksPage from './pages/DiligenceTasksPage';
+import LpContactsPage from './pages/LpContactsPage';
+import FundraisingPipelinePage from './pages/FundraisingPipelinePage';
+import PortfolioUpdatesPage from './pages/PortfolioUpdatesPage';
+import FundExpensesPage from './pages/FundExpensesPage';
+import ReservePlansPage from './pages/ReservePlansPage';
+import CollaborationCommentsPage from './pages/CollaborationCommentsPage';
+import AccessRulesPage from './pages/AccessRulesPage';
+import SavedSearchesPage from './pages/SavedSearchesPage';
+import GlobalSearchPage from './pages/GlobalSearchPage';
 
 // Admin
 import WebhooksPage from './pages/WebhooksPage';
@@ -138,6 +149,17 @@ function ShellRoutes() {
             <Route path="/lp-comms-templates"  element={<LpCommsTemplatesPage />} />
             <Route path="/kpi-ingest-sources"  element={<KpiIngestSourcesPage />} />
             <Route path="/kpi-ingest-records"  element={<KpiIngestRecordsPage />} />
+            <Route path="/data-room-documents" element={<DataRoomDocumentsPage />} />
+            <Route path="/diligence-tasks"     element={<DiligenceTasksPage />} />
+            <Route path="/lp-contacts"         element={<LpContactsPage />} />
+            <Route path="/fundraising-pipeline" element={<FundraisingPipelinePage />} />
+            <Route path="/portfolio-updates"   element={<PortfolioUpdatesPage />} />
+            <Route path="/fund-expenses"       element={<FundExpensesPage />} />
+            <Route path="/reserve-plans"       element={<ReservePlansPage />} />
+            <Route path="/collaboration-comments" element={<CollaborationCommentsPage />} />
+            <Route path="/access-rules"        element={<AccessRulesPage />} />
+            <Route path="/saved-searches"      element={<SavedSearchesPage />} />
+            <Route path="/global-search"       element={<GlobalSearchPage />} />
 
             <Route path="/webhooks" element={<WebhooksPage />} />
 

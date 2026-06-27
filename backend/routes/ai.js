@@ -542,30 +542,35 @@ const SAMPLES = {
       label: 'Halcyon AI deck text',
       values: {
         deck_text: 'Slide 1: Halcyon AI — Agents for regulated enterprises.\nSlide 2: Foundation model commoditization means orchestration is where margin lives.\nSlide 3: Product — agent platform with 38 connectors, compliance attestations for SOC2/HIPAA/FedRAMP.\nSlide 4: Traction — $12.5M ARR, 220% YoY, 320 customers, NDR 129%, gross margin 78%.\nSlide 5: Team — CEO Aisha Rahman (ex-OpenAI head of applied), CTO Ben Lee (ex-Palantir).\nSlide 6: Market — TAM $180B by 2030, SAM $42B in regulated industries, SOM $4B (we target top 1000 enterprises).\nSlide 7: Business model — annual SaaS + per-agent metered.\nSlide 8: Competitors — Cohere, Glean, Writer.\nSlide 9: Ask — $45M Series B at $480M pre. Use of funds: enterprise GTM (60%), R&D (30%), G&A (10%).',
+        context_notes: 'Series B IC pre-read. Focus extraction on traction quality, moat, GTM motion, compliance posture and financing ask.',
       },
     },
     {
       label: 'BlueGrid Energy deck text',
       values: {
         deck_text: 'Slide 1: BlueGrid — long-duration iron-air storage for the grid.\nSlide 2: Problem — duck curves are getting worse, lithium can\'t go past 4 hours economically.\nSlide 3: Solution — iron-air chemistry, 100-hour duration, $20/kWh at scale.\nSlide 4: Tech derisking — 2000-cycle bench data, three utility pilots (Duke, Xcel, PG&E).\nSlide 5: Team — CEO Mark Chen (ex-Tesla Megapack lead), CTO Dr. Priya Nair (MIT materials sci).\nSlide 6: Market — $300B annual storage TAM by 2035.\nSlide 7: Ask — $22M Series A at $140M pre.',
+        context_notes: 'Climate Fund screening memo. Emphasize utility pilot credibility, manufacturing scale-up risk, policy tailwinds and capital intensity.',
       },
     },
     {
       label: 'Lumen Robotics deck text',
       values: {
         deck_text: 'Slide 1: Lumen — bin-picking foundation model + cobot arm.\nSlide 2: Warehouses need flexibility lithium-ion conveyors can\'t deliver.\nSlide 3: Product — vision foundation model + Lumen-Arm hardware bundle.\nSlide 4: Traction — $4.2M ARR, 8x YoY, Amazon + DHL paid pilots converted to 12 sites.\nSlide 5: Team — CEO Mira Okonkwo (ex-CMU Robotics), CTO Diego Vázquez (ex-Boston Dynamics).\nSlide 6: Ask — $18M Series A at $90M pre.',
+        context_notes: 'Robotics Series A diligence. Pull out customer expansion mechanics, site economics, hardware margin assumptions and deployment constraints.',
       },
     },
     {
       label: 'Veridian Crops deck text',
       values: {
         deck_text: 'Slide 1: Veridian — drought-resilient row crops via gene editing.\nSlide 2: Climate change is shrinking arable land 1.5% per year.\nSlide 3: Product — CRISPR-edited corn + soy seed varieties; first product gen approved EPA 2025.\nSlide 4: Traction — three midwest seed-distributor contracts, $1.1M pilot revenue 2025.\nSlide 5: Team — CEO Eduardo Cruz (ex-Pioneer), CSO Dr. Maya Holm (ex-Cornell).\nSlide 6: Ask — $28M Series B at $110M pre.',
+        context_notes: 'Agtech follow-up review. Focus on regulatory approvals, channel concentration, seed-distributor contracts and R&D milestone risk.',
       },
     },
     {
       label: 'Kestrel Defense deck text',
       values: {
         deck_text: 'Slide 1: Kestrel — autonomous counter-UAS for forward operating bases.\nSlide 2: Drone threat is exploding; legacy SAM systems cost-prohibitive.\nSlide 3: Product — modular interceptor + edge-AI targeting; AFWERX Phase II awarded.\nSlide 4: Traction — $950k ARR via DoD SBIR, $18.5M pipeline.\nSlide 5: Team — CEO Sven Holmberg (ex-USMC, Anduril), CTO Dr. Anika Rao.\nSlide 6: Ask — $12M seed at $48M pre.',
+        context_notes: 'Defense-tech seed screen. Extract DoD budget path, procurement dependencies, dual-use potential and founder/government access.',
       },
     },
   ],
@@ -622,6 +627,7 @@ const SAMPLES = {
       values: {
         founder_name: 'Aisha Rahman',
         material: 'LinkedIn: 2019-2023 Head of Applied AI, OpenAI. 2017-2019 Senior ML engineer, Google Brain. 2015-2017 PhD Stanford (CS, ML systems). 2011-2015 BS MIT (EECS). Speaks at NeurIPS / ICML, 12+ first-author papers on multi-agent orchestration. Press: 2024 Forbes 30u30, 2025 MIT TR35. Twitter: prolific on inference economics and agentic patterns.',
+        context_notes: 'Evaluate founder-market fit for enterprise AI orchestration, ability to recruit senior GTM, and credibility with regulated enterprise buyers.',
       },
     },
     {
@@ -629,6 +635,7 @@ const SAMPLES = {
       values: {
         founder_name: 'Mira Okonkwo',
         material: 'LinkedIn: 2021-2024 Sr Research Scientist, CMU Robotics Institute (mobile manipulation lab). 2017-2021 Robotics engineer, Boston Dynamics (Spot perception team). 2015-2017 MS Robotics CMU. 2013-2017 BS Mechanical Engineering Howard University. Press: 2024 IEEE Spectrum profile on foundation models in manipulation. 22 patents in robotic grasping. No prior CEO experience.',
+        context_notes: 'Assess technical-founder strengths, operator gaps, executive hiring needs and suitability for warehouse robotics commercialization.',
       },
     },
     {
@@ -636,6 +643,7 @@ const SAMPLES = {
       values: {
         founder_name: 'Mark Chen',
         material: 'LinkedIn: 2019-2024 Director Engineering, Tesla Megapack program. 2016-2019 Senior battery engineer, Apple SPG. 2014-2016 Manufacturing engineer, Foxconn. 2012-2014 BS ME Stanford. 2014 left ME PhD at Berkeley ABD. Press: Quoted in WSJ on grid storage. Co-founder of two prior energy startups (one acquired by Tesla 2017, one wound down 2018).',
+        context_notes: 'Focus on hardtech execution history, manufacturing scale-up credibility, prior founder lessons and utility customer access.',
       },
     },
     {
@@ -643,6 +651,7 @@ const SAMPLES = {
       values: {
         founder_name: 'Naomi Brand',
         material: 'LinkedIn: 2020-2024 Director Tailored Access Operations, NSA. 2014-2020 SOC lead, Mandiant. 2010-2014 BS CS Carnegie Mellon. Press: BlackHat keynote 2024 on lateral movement detection. Holds TS/SCI. Three patents in graph-based intrusion detection.',
+        context_notes: 'Evaluate credibility with enterprise CISOs, transition from government to commercial GTM, and board-level communications maturity.',
       },
     },
     {
@@ -650,6 +659,7 @@ const SAMPLES = {
       values: {
         founder_name: 'Sven Holmberg',
         material: 'LinkedIn: 2022-2024 Director Counter-UAS Programs, Anduril. 2014-2022 USMC officer, multiple Iraq + Afghanistan deployments, MARSOC. 2010-2014 BS USNA, mechanical engineering. Holds active TS/SCI. Press: minimal. No prior founder experience.',
+        context_notes: 'Assess government buyer access, dual-use founder-market fit, recruiting gaps and risk from limited prior CEO experience.',
       },
     },
   ],
@@ -662,6 +672,7 @@ const SAMPLES = {
         company_name: 'Halcyon AI',
         deal_summary: 'Series B, enterprise AI, $45M at $480M pre, $12.5M ARR 220% YoY, 320 logos, founder ex-OpenAI head of applied.',
         thesis_text: 'Fund AI I invests in enterprise AI infrastructure and applied AI orchestration for regulated industries. Sweet spot: Series A-B, $10-50M checks, $1-50M ARR with NDR > 120%, founder pedigree from frontier labs or top operators.',
+        context_notes: 'Partner question: verify whether valuation is justified by regulated-enterprise wedge and whether model commoditization hurts the thesis.',
       },
     },
     {
@@ -671,6 +682,7 @@ const SAMPLES = {
         company_name: 'BlueGrid Energy',
         deal_summary: 'Series A, long-duration storage, $22M at $140M pre, pre-revenue with three utility pilots, founder ex-Tesla Megapack lead.',
         thesis_text: 'Fund Climate I invests in grid decarbonization tech: long-duration storage, grid software, distributed energy resources. Stage: Series A. Check: $10-25M. Founders with serious operator pedigree from Tesla/SunPower/Form Energy preferred.',
+        context_notes: 'Investment team wants explicit scoring on stage fit, capital intensity, policy exposure and pilot-to-commercial conversion risk.',
       },
     },
     {
@@ -680,6 +692,7 @@ const SAMPLES = {
         company_name: 'Lumen Robotics',
         deal_summary: 'Series A, warehouse robotics, $18M at $90M pre, $4.2M ARR growing 8x, Amazon+DHL paid pilots, CMU spinout.',
         thesis_text: 'Fund IV is a generalist Series A fund. Targets: deeptech with paying customers, founders with operator + research pedigree, $5-20M checks. Open to robotics, infra, vertical SaaS.',
+        context_notes: 'Focus on whether hardware-heavy robotics still fits Fund IV risk appetite and whether customer concentration should reduce score.',
       },
     },
     {
@@ -689,6 +702,7 @@ const SAMPLES = {
         company_name: 'Volans Bio',
         deal_summary: 'Series C, cardiometabolic biotech, $80M at $950M pre, Phase 2 readout Q4.',
         thesis_text: 'Fund AI I invests in enterprise AI infrastructure and applied AI orchestration for regulated industries.',
+        context_notes: 'Use as an off-thesis control case; explain if any AI-enabled biology angle could partially rescue the fit.',
       },
     },
     {
@@ -698,6 +712,7 @@ const SAMPLES = {
         company_name: 'NodeCipher Security',
         deal_summary: 'Series B, identity-graph cyber, $40M at $480M pre, $9.8M ARR NDR 142%, ex-NSA CEO.',
         thesis_text: 'Fund Security I invests in cyber + defense-tech dual-mandate. Stage: Series A-B. Check: $10-40M. Founders with .gov / IC pedigree preferred. NDR > 130% bar.',
+        context_notes: 'Score commercial traction, cyber category fit, valuation pressure from Wiz comps and government-credential founder edge.',
       },
     },
   ],

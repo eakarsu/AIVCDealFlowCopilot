@@ -1,6 +1,12 @@
+function defaultApiBase() {
+  if (typeof window === 'undefined') return 'http://localhost:3073/api';
+  const { protocol, hostname } = window.location;
+  return `${protocol}//${hostname}:3073/api`;
+}
+
 const API_BASE =
   (typeof window !== 'undefined' && window.__API_BASE__) ||
-  'http://localhost:3073/api';
+  defaultApiBase();
 
 export { API_BASE };
 
@@ -138,6 +144,17 @@ export const introsApi            = crud('intros');
 export const pipelineNotesApi     = crud('pipeline-notes');
 export const exitsApi             = crud('exits');
 export const auditLogApi          = crud('audit-log');
+export const dataRoomDocumentsApi = crud('data-room-documents');
+export const diligenceTasksApi    = crud('diligence-tasks');
+export const lpContactsApi        = crud('lp-contacts');
+export const fundraisingPipelineApi = crud('fundraising-pipeline');
+export const portfolioUpdatesApi  = crud('portfolio-updates');
+export const fundExpensesApi      = crud('fund-expenses');
+export const reservePlansApi      = crud('reserve-plans');
+export const collaborationCommentsApi = crud('collaboration-comments');
+export const accessRulesApi       = crud('access-rules');
+export const savedSearchesApi     = crud('saved-searches');
+export const globalSearch = (q) => request(`/global-search?${new URLSearchParams({ q: q || '' }).toString()}`);
 
 // Dashboard
 export const getDashboardStats = () => request('/dashboard');

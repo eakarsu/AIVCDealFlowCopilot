@@ -9,6 +9,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo -e "${CYAN}╔══════════════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║  AI VC Deal Flow Copilot - Pipeline / IC / LP Hub    ║${NC}"
@@ -23,8 +24,15 @@ fi
 BACKEND_PORT=${BACKEND_PORT:-3073}
 FRONTEND_PORT=${FRONTEND_PORT:-3072}
 
+kill_stale_processes() {
+  pkill -f "$PROJECT_DIR/backend/node_modules/.bin/nodemon server.js" 2>/dev/null || true
+  pkill -f "$PROJECT_DIR/frontend/node_modules/.bin/react-scripts start" 2>/dev/null || true
+  pkill -f "$PROJECT_DIR/frontend/node_modules/react-scripts/scripts/start.js" 2>/dev/null || true
+}
+
 # Kill processes on used ports
 echo -e "${YELLOW}Cleaning up ports $BACKEND_PORT and $FRONTEND_PORT...${NC}"
+kill_stale_processes
 lsof -ti:$BACKEND_PORT 2>/dev/null | xargs kill -9 2>/dev/null || true
 lsof -ti:$FRONTEND_PORT 2>/dev/null | xargs kill -9 2>/dev/null || true
 sleep 1
@@ -93,6 +101,7 @@ cleanup() {
   echo -e "\n${YELLOW}Shutting down...${NC}"
   kill $BACKEND_PID 2>/dev/null || true
   kill $FRONTEND_PID 2>/dev/null || true
+  kill_stale_processes
   lsof -ti:$BACKEND_PORT 2>/dev/null | xargs kill -9 2>/dev/null || true
   lsof -ti:$FRONTEND_PORT 2>/dev/null | xargs kill -9 2>/dev/null || true
   echo -e "${GREEN}✓ Shutdown complete${NC}"

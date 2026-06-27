@@ -1,6 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import AIResultDisplay from './AIResultDisplay';
-import { getAIHistory, getAISamples } from '../services/api';
+import {
+  advisorsApi,
+  companiesApi,
+  dealsApi,
+  foundersApi,
+  fundsApi,
+  getAIHistory,
+  getAISamples,
+  investmentsApi,
+  termSheetsApi,
+} from '../services/api';
 
 /**
  * Generic AI feature page.
@@ -26,6 +36,15 @@ export default function AIPage({ title, subtitle, feature, inputs, run, buttonLa
   const [historyError, setHistoryError] = useState(null);
 
   const [samples, setSamples] = useState([]);
+  const [references, setReferences] = useState({
+    advisors: [],
+    companies: [],
+    deals: [],
+    founders: [],
+    funds: [],
+    investments: [],
+    termSheets: [],
+  });
 
   useEffect(() => {
     let alive = true;
@@ -39,6 +58,58 @@ export default function AIPage({ title, subtitle, feature, inputs, run, buttonLa
       .catch(() => { if (alive) setSamples([]); });
     return () => { alive = false; };
   }, [feature]);
+
+  const referenceKeys = useMemo(() => new Set((inputs || []).map((input) => input.key)), [inputs]);
+
+  useEffect(() => {
+    let alive = true;
+    const needsReferences = [...referenceKeys].some((key) => [
+      'company_name',
+      'company_id',
+      'deal_id',
+      'founder_name',
+      'fund',
+      'fund_id',
+      'investment_id',
+      'sector',
+      'source',
+      'target',
+      'term_sheet_id',
+    ].includes(key));
+    if (!needsReferences) return () => { alive = false; };
+
+    async function loadReferences() {
+      const [
+        advisors,
+        companies,
+        deals,
+        founders,
+        funds,
+        investments,
+        termSheets,
+      ] = await Promise.all([
+        advisorsApi.list().catch(() => []),
+        companiesApi.list().catch(() => []),
+        dealsApi.list().catch(() => []),
+        foundersApi.list().catch(() => []),
+        fundsApi.list().catch(() => []),
+        investmentsApi.list().catch(() => []),
+        termSheetsApi.list().catch(() => []),
+      ]);
+      if (!alive) return;
+      setReferences({
+        advisors: Array.isArray(advisors) ? advisors : [],
+        companies: Array.isArray(companies) ? companies : [],
+        deals: Array.isArray(deals) ? deals : [],
+        founders: Array.isArray(founders) ? founders : [],
+        funds: Array.isArray(funds) ? funds : [],
+        investments: Array.isArray(investments) ? investments : [],
+        termSheets: Array.isArray(termSheets) ? termSheets : [],
+      });
+    }
+    loadReferences();
+    return () => { alive = false; };
+  }, [referenceKeys]);
 
   const setField = (k, v) => setValues((s) => ({ ...s, [k]: v }));
 
@@ -79,6 +150,47 @@ export default function AIPage({ title, subtitle, feature, inputs, run, buttonLa
   };
   const closeHistory = () => setHistoryOpen(false);
 
+  const unique = (items) => [...new Set(items.filter((item) => item != null && String(item).trim() !== '').map(String))];
+  const referenceOptions = (key) => {
+    switch (key) {
+      case 'company_name':
+        return unique([
+          ...references.companies.map((row) => row.name),
+          ...references.deals.map((row) => row.company_name),
+        ]);
+      case 'company_id':
+        return unique(references.companies.map((row) => row.company_id));
+      case 'deal_id':
+        return unique(references.deals.map((row) => row.deal_id));
+      case 'founder_name':
+        return unique(references.founders.map((row) => row.name));
+      case 'fund':
+      case 'fund_id':
+        return unique(references.funds.map((row) => row.fund_id));
+      case 'investment_id':
+        return unique(references.investments.map((row) => row.inv_id));
+      case 'sector':
+        return unique([
+          ...references.companies.map((row) => row.sector),
+          ...references.deals.map((row) => row.sector),
+        ]);
+      case 'source':
+        return unique([
+          ...references.founders.map((row) => row.name),
+          ...references.advisors.map((row) => row.name),
+        ]);
+      case 'target':
+        return unique([
+          ...references.founders.map((row) => row.name),
+          ...references.companies.map((row) => row.name),
+        ]);
+      case 'term_sheet_id':
+        return unique(references.termSheets.map((row) => row.ts_id));
+      default:
+        return [];
+    }
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -96,11 +208,11 @@ export default function AIPage({ title, subtitle, feature, inputs, run, buttonLa
         </div>
       </div>
 
-      {samples && samples.length > 0 && inputs && inputs.length > 0 && (
+      {samples && samples.length > 0 && (
         <div className="card" style={{ marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
             <span style={{ fontWeight: 600, marginRight: 8 }}>Sample Fill:</span>
-            {samples.slice(0, 5).map((s, idx) => (
+            {samples.map((s, idx) => (
               <button
                 key={idx}
                 type="button"
@@ -133,14 +245,30 @@ export default function AIPage({ title, subtitle, feature, inputs, run, buttonLa
                     onChange={(e) => setField(i.key, e.target.value)}
                   />
                 ) : (
-                  <input
-                    type={i.type || 'text'}
-                    placeholder={i.placeholder || ''}
-                    value={values[i.key] ?? ''}
-                    onChange={(e) =>
-                      setField(i.key, i.type === 'number' ? Number(e.target.value || 0) : e.target.value)
-                    }
-                  />
+                  <>
+                    {(() => {
+                      const options = i.type === 'number' ? [] : referenceOptions(i.key);
+                      const listId = options.length ? `ai-${feature || 'feature'}-${i.key}-options` : undefined;
+                      return (
+                        <>
+                          <input
+                            type={i.type || 'text'}
+                            list={listId}
+                            placeholder={i.placeholder || ''}
+                            value={values[i.key] ?? ''}
+                            onChange={(e) =>
+                              setField(i.key, i.type === 'number' ? Number(e.target.value || 0) : e.target.value)
+                            }
+                          />
+                          {listId && (
+                            <datalist id={listId}>
+                              {options.map((option) => <option key={option} value={option} />)}
+                            </datalist>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </>
                 )}
               </div>
             ))}

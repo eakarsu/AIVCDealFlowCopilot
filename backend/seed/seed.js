@@ -47,6 +47,16 @@ async function run() {
       DROP TABLE IF EXISTS lp_comms_templates  CASCADE;
       DROP TABLE IF EXISTS kpi_ingest_sources  CASCADE;
       DROP TABLE IF EXISTS kpi_ingest_records  CASCADE;
+      DROP TABLE IF EXISTS data_room_documents CASCADE;
+      DROP TABLE IF EXISTS diligence_tasks     CASCADE;
+      DROP TABLE IF EXISTS lp_contacts         CASCADE;
+      DROP TABLE IF EXISTS fundraising_pipeline CASCADE;
+      DROP TABLE IF EXISTS portfolio_updates   CASCADE;
+      DROP TABLE IF EXISTS fund_expenses       CASCADE;
+      DROP TABLE IF EXISTS reserve_plans       CASCADE;
+      DROP TABLE IF EXISTS collaboration_comments CASCADE;
+      DROP TABLE IF EXISTS access_rules        CASCADE;
+      DROP TABLE IF EXISTS saved_searches      CASCADE;
     `);
 
     console.log('[seed] applying migrations...');
@@ -56,6 +66,8 @@ async function run() {
     await client.query(schema2);
     const schema3 = fs.readFileSync(path.join(__dirname, '..', 'migrations', '003_schema.sql'), 'utf8');
     await client.query(schema3);
+    const schema4 = fs.readFileSync(path.join(__dirname, '..', 'migrations', '004_feature_expansion.sql'), 'utf8');
+    await client.query(schema4);
 
     console.log('[seed] inserting deals...');
     const deals = [
@@ -547,6 +559,186 @@ async function run() {
       await client.query(
         `INSERT INTO audit_log (entry_id,actor,target,action,result,ts) VALUES ($1,$2,$3,$4,$5,$6)`,
         a
+      );
+    }
+
+    console.log('[seed] inserting feature expansion records...');
+    const workstreams = ['commercial', 'technical', 'financial', 'legal', 'security'];
+    const owners = ['Rachel Lin', 'Daniel Klein', 'Sofia Hernandez', 'Marcus Tan', 'Naomi Ito'];
+    const lpNames = [
+      'Lakeshore University Endowment', 'Northstar Public Pension', 'Harbor Family Office',
+      'Summit Insurance Group', 'Cedars Foundation', 'Orion Sovereign Fund',
+      'Keystone Hospital System', 'Redwood Wealth Partners', 'Atlas Pension Trust',
+      'Helios Foundation', 'Canyon Reinsurance', 'Bridgewater FoF',
+      'Meridian Family Capital', 'Aspen State Treasury', 'Pacific University Endowment',
+    ];
+
+    for (let i = 0; i < 15; i++) {
+      const deal = deals[i];
+      const companyId = `CMP-${String(i + 1).padStart(3, '0')}`;
+      await client.query(
+        `INSERT INTO data_room_documents
+          (doc_id, deal_id, company_id, title, category, confidentiality, owner, status, uploaded_at, summary)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        [
+          `DRD-${String(i + 1).padStart(3, '0')}`,
+          deal[0],
+          companyId,
+          `${deal[1]} diligence packet ${i + 1}`,
+          ['financials', 'legal', 'product', 'security', 'customer'][i % 5],
+          ['internal', 'confidential', 'restricted'][i % 3],
+          owners[i % owners.length],
+          ['indexed', 'review_needed', 'approved'][i % 3],
+          `2026-05-${String((i % 20) + 1).padStart(2, '0')} 10:00+00`,
+          `Seeded data-room document for ${deal[1]} covering ${workstreams[i % workstreams.length]} diligence.`,
+        ]
+      );
+
+      await client.query(
+        `INSERT INTO diligence_tasks
+          (task_id, deal_id, workstream, title, owner, priority, status, due_date, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [
+          `DDT-${String(i + 1).padStart(3, '0')}`,
+          deal[0],
+          workstreams[i % workstreams.length],
+          `Complete ${workstreams[i % workstreams.length]} diligence for ${deal[1]}`,
+          owners[(i + 1) % owners.length],
+          ['low', 'medium', 'high', 'urgent'][i % 4],
+          ['open', 'in_progress', 'blocked', 'complete'][i % 4],
+          `2026-06-${String((i % 24) + 1).padStart(2, '0')}`,
+          `Review source materials, document findings, and prepare IC-ready summary for ${deal[1]}.`,
+        ]
+      );
+
+      await client.query(
+        `INSERT INTO lp_contacts
+          (contact_id, lp_name, contact_name, email, role, geography, commitment_usd, status, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [
+          `LPC-${String(i + 1).padStart(3, '0')}`,
+          lpNames[i],
+          ['Avery Stone', 'Morgan Patel', 'Jordan Lee', 'Casey Brooks', 'Taylor Chen'][i % 5],
+          `lp${i + 1}@examplecapital.com`,
+          ['CIO', 'Director', 'Principal', 'Analyst', 'Consultant'][i % 5],
+          ['US East', 'US West', 'Europe', 'Middle East', 'Asia'][i % 5],
+          5000000 + i * 2500000,
+          ['active', 'prospect', 'watchlist'][i % 3],
+          `Relationship seeded for Fund ${funds[i % funds.length][0]} fundraising and reporting workflows.`,
+        ]
+      );
+
+      await client.query(
+        `INSERT INTO fundraising_pipeline
+          (raise_id, fund_id, lp_name, stage, target_commitment_usd, probability_pct, next_step, next_touch_date, owner, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        [
+          `FR-${String(i + 1).padStart(3, '0')}`,
+          funds[i % funds.length][0],
+          lpNames[i],
+          ['targeted', 'first_meeting', 'diligence', 'legal', 'committed'][i % 5],
+          10000000 + i * 3000000,
+          20 + (i % 5) * 15,
+          ['Send deck', 'Schedule partner call', 'Share DDQ', 'Negotiate side letter', 'Confirm allocation'][i % 5],
+          `2026-06-${String((i % 25) + 2).padStart(2, '0')}`,
+          owners[i % owners.length],
+          `Fundraising opportunity for ${lpNames[i]} with ${funds[i % funds.length][0]}.`,
+        ]
+      );
+
+      await client.query(
+        `INSERT INTO portfolio_updates
+          (update_id, company_id, period, arr_usd, burn_usd, runway_months, highlights, asks, status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [
+          `PU-${String(i + 1).padStart(3, '0')}`,
+          companyId,
+          `2026Q${(i % 4) + 1}`,
+          1000000 + i * 850000,
+          250000 + i * 42000,
+          9 + (i % 10),
+          `${companies[i][1]} reported customer momentum and product milestone completion.`,
+          ['Hiring VP Sales', 'Enterprise intro', 'Bridge financing advice', 'Board candidate', 'Pricing review'][i % 5],
+          ['received', 'reviewed', 'needs_followup'][i % 3],
+        ]
+      );
+
+      await client.query(
+        `INSERT INTO fund_expenses
+          (expense_id, fund_id, category, vendor, amount_usd, period, approval_status, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [
+          `EXP-${String(i + 1).padStart(3, '0')}`,
+          funds[i % funds.length][0],
+          ['legal', 'audit', 'tax', 'data', 'travel'][i % 5],
+          ['Cooley LLP', 'Deloitte', 'KPMG', 'Carta', 'United Airlines'][i % 5],
+          12000 + i * 2750,
+          `2026-${String((i % 12) + 1).padStart(2, '0')}`,
+          ['pending', 'approved', 'rejected'][i % 3],
+          `Operating expense allocated to ${funds[i % funds.length][0]}.`,
+        ]
+      );
+
+      await client.query(
+        `INSERT INTO reserve_plans
+          (plan_id, fund_id, company_id, current_ownership_pct, reserve_amount_usd, scenario, recommendation, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [
+          `RP-${String(i + 1).padStart(3, '0')}`,
+          funds[i % funds.length][0],
+          companyId,
+          3 + (i % 8) * 1.25,
+          2000000 + i * 900000,
+          ['base', 'upside', 'downside'][i % 3],
+          ['reserve', 'super_pro_rata', 'hold', 'trim'][i % 4],
+          `Reserve scenario for ${companies[i][1]} based on ownership, runway, and next-round quality.`,
+        ]
+      );
+
+      await client.query(
+        `INSERT INTO collaboration_comments
+          (comment_id, resource_type, resource_id, author, body, visibility, status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        [
+          `COM-${String(i + 1).padStart(3, '0')}`,
+          ['deal', 'company', 'fund', 'document', 'task'][i % 5],
+          [deal[0], companyId, funds[i % funds.length][0], `DRD-${String(i + 1).padStart(3, '0')}`, `DDT-${String(i + 1).padStart(3, '0')}`][i % 5],
+          owners[(i + 2) % owners.length],
+          `Seeded collaboration note ${i + 1}: confirm owner, next step, and IC implication.`,
+          ['internal', 'partners', 'deal_team'][i % 3],
+          ['open', 'resolved'][i % 2],
+        ]
+      );
+
+      await client.query(
+        `INSERT INTO access_rules
+          (rule_id, subject_type, subject, resource_type, resource_id, permission, status, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [
+          `ACL-${String(i + 1).padStart(3, '0')}`,
+          ['role', 'user', 'team'][i % 3],
+          ['admin', 'partner@vcdeal.io', 'deal-team'][i % 3],
+          ['deal', 'document', 'fund', 'company'][i % 4],
+          [deal[0], `DRD-${String(i + 1).padStart(3, '0')}`, funds[i % funds.length][0], companyId][i % 4],
+          ['read', 'write', 'admin'][i % 3],
+          ['active', 'paused'][i % 2],
+          `Access policy for scoped VC workflows and sensitive data room materials.`,
+        ]
+      );
+
+      await client.query(
+        `INSERT INTO saved_searches
+          (search_id, name, scope, query, owner, alert_enabled, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        [
+          `SS-${String(i + 1).padStart(3, '0')}`,
+          `${deal[1]} watch query`,
+          ['all', 'deals', 'documents', 'portfolio', 'lp'][i % 5],
+          [deal[1], deal[2], companies[i][2], funds[i % funds.length][0], lpNames[i]][i % 5],
+          owners[i % owners.length],
+          i % 2 === 0,
+          `Saved search for recurring review and optional alerting.`,
+        ]
       );
     }
 

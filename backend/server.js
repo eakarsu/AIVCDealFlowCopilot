@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
@@ -34,14 +35,31 @@ async function onDealCreated(row) {
 const app = express();
 const PORT = process.env.BACKEND_PORT || 3073;
 
+async function ensureFeatureSchema() {
+  const migrationPath = path.join(__dirname, 'migrations', '004_feature_expansion.sql');
+  const sql = fs.readFileSync(migrationPath, 'utf8');
+  await pool.query(sql);
+}
+
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3072,http://localhost:3073,http://localhost:3000')
   .split(',').map((o) => o.trim()).filter(Boolean);
+function isPrivateLanOrigin(origin) {
+  try {
+    const { protocol, hostname } = new URL(origin);
+    if (!['http:', 'https:'].includes(protocol)) return false;
+    if (['localhost', '127.0.0.1', '::1'].includes(hostname)) return true;
+    return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(hostname);
+  } catch (_) {
+    return false;
+  }
+}
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);
     if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) return cb(null, true);
+    if (isPrivateLanOrigin(origin)) return cb(null, true);
     return cb(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true,
@@ -102,6 +120,27 @@ app.use('/api/lp-comms-templates',   require('./routes/lpCommsTemplates'));
 app.use('/api/kpi-ingest-sources',   require('./routes/kpiIngestSources'));
 app.use('/api/kpi-ingest-records',   require('./routes/kpiIngestRecords'));
 
-app.listen(PORT, () => {
-  console.log(`\nAI VC Deal Flow Copilot API running on http://localhost:${PORT}\n`);
-});
+// Feature expansion — data room, diligence, LP CRM, fund operations,
+// collaboration, access control, and global search.
+app.use('/api/data-room-documents',      require('./routes/dataRoomDocuments'));
+app.use('/api/diligence-tasks',          require('./routes/diligenceTasks'));
+app.use('/api/lp-contacts',              require('./routes/lpContacts'));
+app.use('/api/fundraising-pipeline',     require('./routes/fundraisingPipeline'));
+app.use('/api/portfolio-updates',        require('./routes/portfolioUpdates'));
+app.use('/api/fund-expenses',            require('./routes/fundExpenses'));
+app.use('/api/reserve-plans',            require('./routes/reservePlans'));
+app.use('/api/collaboration-comments',   require('./routes/collaborationComments'));
+app.use('/api/access-rules',             require('./routes/accessRules'));
+app.use('/api/saved-searches',           require('./routes/savedSearches'));
+app.use('/api/global-search',            require('./routes/globalSearch'));
+
+ensureFeatureSchema()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`\nAI VC Deal Flow Copilot API running on http://localhost:${PORT}\n`);
+    });
+  })
+  .catch((error) => {
+    console.error('[startup] failed to apply feature schema:', error.message);
+    process.exit(1);
+  });
