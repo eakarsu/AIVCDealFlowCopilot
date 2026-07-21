@@ -7,7 +7,6 @@
 const express = require('express');
 const pool = require('../config/database');
 const { requireWriter } = require('../middleware/auth');
-const { fireWebhook } = require('../services/webhooks');
 const upload = require('../services/uploadStore');
 
 function parseCsv(text) {
@@ -61,7 +60,6 @@ function buildCrud({ table, fields, idPrefix = '', webhookPrefix = null }) {
         vals
       );
       if (webhookPrefix) {
-        fireWebhook(`${webhookPrefix}.created`, { table, row: r.rows[0] }).catch(() => {});
       }
       res.status(201).json(r.rows[0]);
     } catch (e) { res.status(500).json({ error: e.message }); }

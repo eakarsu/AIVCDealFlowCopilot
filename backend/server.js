@@ -1,65 +1,30 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const { authenticateToken } = require('./middleware/auth');
 const pool = require('./config/database');
-const { fireWebhook } = require('./services/webhooks');
-
-async function onIcMemoCreated(row) {
-  const rec = String(row.recommendation || '').toLowerCase();
-  if (['invest', 'invest_with_conditions'].includes(rec)) {
-    try {
-      await pool.query(
-        `INSERT INTO notifications (user_id, title, body, severity, source)
-         VALUES (NULL, $1, $2, $3, $4)`,
-        [`New IC memo: ${row.memo_id}`,
-         `Deal ${row.deal_id} — recommendation: ${row.recommendation}`.slice(0, 1000),
-         'info',
-         'ic_memos']
-      );
-    } catch (e) { console.warn('[notify] ic memo insert failed:', e.message); }
-    fireWebhook(`memo.${rec}`, { row }).catch(() => {});
-  }
-}
-
-async function onDealCreated(row) {
-  if (String(row.status || '').toLowerCase() === 'closed') {
-    fireWebhook('deal.closed', { row }).catch(() => {});
-  }
-}
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 3073;
+const PORT = Number(process.env.BACKEND_PORT);
+if (!Number.isInteger(PORT) || PORT < 1) throw new Error('BACKEND_PORT is required');
 
-async function ensureFeatureSchema() {
-  const migrationPath = path.join(__dirname, 'migrations', '004_feature_expansion.sql');
-  const sql = fs.readFileSync(migrationPath, 'utf8');
-  await pool.query(sql);
+async function verifySchema() {
+  const result = await pool.query("SELECT to_regclass('public.vc_deal_reviews') AS workflow, to_regclass('public.vc_workflow_audit') AS audit");
+  if (!result.rows[0].workflow || !result.rows[0].audit) throw new Error('database migrations are pending; run npm run migrate');
 }
 
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3072,http://localhost:3073,http://localhost:3000')
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',').map((o) => o.trim()).filter(Boolean);
-function isPrivateLanOrigin(origin) {
-  try {
-    const { protocol, hostname } = new URL(origin);
-    if (!['http:', 'https:'].includes(protocol)) return false;
-    if (['localhost', '127.0.0.1', '::1'].includes(hostname)) return true;
-    return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(hostname);
-  } catch (_) {
-    return false;
-  }
-}
+if (!allowedOrigins.length) throw new Error('ALLOWED_ORIGINS is required');
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);
     if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) return cb(null, true);
-    if (isPrivateLanOrigin(origin)) return cb(null, true);
     return cb(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true,
@@ -77,6 +42,8 @@ app.use('/api/auth', require('./routes/auth'));
 
 // Everything below this line requires a Bearer token.
 app.use('/api', authenticateToken);
+app.use('/api/deal-workflow', require('./routes/dealWorkflow'));
+app.use(/^\/api\/(?:ai(?:\/|$)|gap-|integrations?(?:\/|$)|webhooks?(?:\/|$))/, (_req, res) => res.status(503).json({ error: 'legacy generated/direct-provider endpoint quarantined; use the reviewed deal workflow delivery ledger' }));
 
 // 18 CRUD routes — all use _crudFactory which embeds RBAC + bulk-import + attachments
 app.use('/api/deals',              require('./routes/deals'));
@@ -134,13 +101,13 @@ app.use('/api/access-rules',             require('./routes/accessRules'));
 app.use('/api/saved-searches',           require('./routes/savedSearches'));
 app.use('/api/global-search',            require('./routes/globalSearch'));
 
-ensureFeatureSchema()
+verifySchema()
   .then(() => {
     app.listen(PORT, () => {
       console.log(`\nAI VC Deal Flow Copilot API running on http://localhost:${PORT}\n`);
     });
   })
   .catch((error) => {
-    console.error('[startup] failed to apply feature schema:', error.message);
+    console.error('[startup] schema readiness failed:', error.message);
     process.exit(1);
   });

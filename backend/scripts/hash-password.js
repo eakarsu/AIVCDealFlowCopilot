@@ -1,0 +1,1 @@
+const {hashPassword}=require('../services/passwords');const password=process.argv[2];if(!password){console.error('usage: node scripts/hash-password.js <password>');process.exit(2);}console.log(hashPassword(password));

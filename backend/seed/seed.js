@@ -1,16 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
+const { hashPassword } = require('../services/passwords');
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'vc_deal_flow',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-});
+if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
+if(process.env.NODE_ENV==='production'||process.env.ALLOW_DESTRUCTIVE_DEMO_SEED!=='true'){console.error('Refusing destructive demo seed outside an explicitly enabled non-production environment.');process.exit(2);}
 async function run() {
   const client = await pool.connect();
   try {
@@ -68,6 +65,14 @@ async function run() {
     await client.query(schema3);
     const schema4 = fs.readFileSync(path.join(__dirname, '..', 'migrations', '004_feature_expansion.sql'), 'utf8');
     await client.query(schema4);
+    // This seeder intentionally recreates the legacy users table, so restore
+    // the authoritative tenant boundary before inserting identities. The
+    // migration runner cannot do that afterward because it correctly records
+    // the migration as already applied before this destructive reset.
+    const authoritativeWorkflow = fs.readFileSync(path.join(__dirname, '..', 'migrations', '005_authoritative_deal_workflow.sql'), 'utf8');
+    await client.query(authoritativeWorkflow);
+    const passwordCapacity = fs.readFileSync(path.join(__dirname, '..', 'migrations', '006_password_hash_capacity.sql'), 'utf8');
+    await client.query(passwordCapacity);
 
     console.log('[seed] inserting deals...');
     const deals = [
@@ -298,10 +303,13 @@ async function run() {
     // RBAC users
     // ─────────────────────────────────────────────
     console.log('[seed] inserting users...');
+    const demoPassword = process.env.SEED_DEMO_PASSWORD || '';
+    if (demoPassword.length < 12) throw new Error('SEED_DEMO_PASSWORD must contain at least 12 characters');
+    const encodedPassword = hashPassword(demoPassword);
     const users = [
-      ['admin@vcdeal.io',   'admin123',   'Admin',   'admin'],
-      ['partner@vcdeal.io', 'partner123', 'Partner', 'partner'],
-      ['viewer@vcdeal.io',  'viewer123',  'Viewer',  'viewer'],
+      ['admin@vcdeal.invalid', encodedPassword, 'Admin', 'admin'],
+      ['partner@vcdeal.invalid', encodedPassword, 'Partner', 'partner'],
+      ['viewer@vcdeal.invalid', encodedPassword, 'Viewer', 'viewer'],
     ];
     for (const u of users) {
       await client.query(

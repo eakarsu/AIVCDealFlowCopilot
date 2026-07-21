@@ -1,12 +1,6 @@
-function defaultApiBase() {
-  if (typeof window === 'undefined') return 'http://localhost:3073/api';
-  const { protocol, hostname } = window.location;
-  return `${protocol}//${hostname}:3073/api`;
-}
-
 const API_BASE =
   (typeof window !== 'undefined' && window.__API_BASE__) ||
-  defaultApiBase();
+  process.env.REACT_APP_API_URL || '/api';
 
 export { API_BASE };
 

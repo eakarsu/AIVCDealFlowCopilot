@@ -1,9 +1,5 @@
 const jwt = require('jsonwebtoken');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
-
-const JWT_SECRET =
-  process.env.JWT_SECRET || 'vc-deal-flow-copilot-secret-key-2026';
+const { jwtSecret: JWT_SECRET } = require('../config/security');
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];

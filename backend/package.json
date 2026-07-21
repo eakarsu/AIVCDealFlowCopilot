@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "migrate": "node scripts/migrate.js",
+    "test": "node --test test/*.test.js",
+    "hash-password": "node scripts/hash-password.js",
+    "create-admin": "node scripts/create-admin.js",
     "seed": "node seed/seed.js"
   },
   "dependencies": {
