@@ -307,13 +307,13 @@ async function run() {
     if (demoPassword.length < 12) throw new Error('SEED_DEMO_PASSWORD must contain at least 12 characters');
     const encodedPassword = hashPassword(demoPassword);
     const users = [
-      ['admin@vcdeal.invalid', encodedPassword, 'Admin', 'admin'],
-      ['partner@vcdeal.invalid', encodedPassword, 'Partner', 'partner'],
-      ['viewer@vcdeal.invalid', encodedPassword, 'Viewer', 'viewer'],
+      [process.env.SEED_ADMIN_EMAIL || 'admin@vcdeal.invalid', encodedPassword, 'Admin', 'admin', process.env.GOVERNANCE_TENANT_ID],
+      ['partner@vcdeal.invalid', encodedPassword, 'Partner', 'partner', process.env.GOVERNANCE_TENANT_ID],
+      ['viewer@vcdeal.invalid', encodedPassword, 'Viewer', 'viewer', process.env.GOVERNANCE_TENANT_ID],
     ];
     for (const u of users) {
       await client.query(
-        `INSERT INTO users (email,password,name,role) VALUES ($1,$2,$3,$4)`,
+        `INSERT INTO users (email,password,name,role,tenant_id) VALUES ($1,$2,$3,$4,$5)`,
         u
       );
     }
