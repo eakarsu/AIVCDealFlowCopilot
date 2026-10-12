@@ -13,7 +13,7 @@ export default function AICapTableImpactPage() {
         { key: 'cap_table_text',       label: 'Current Cap Table (stakeholder / pct)', type: 'textarea' },
         { key: 'proposed_round_text',  label: 'Proposed Round (pre, size, pool)',       type: 'textarea' },
       ]}
-      run={(v) => aiCapTableImpact(v)}
+      run={(v, requestOptions) => aiCapTableImpact(v, requestOptions)}
     />
   );
 }

@@ -12,7 +12,7 @@ export default function AIFundStrategyBriefPage() {
         { key: 'fund_id', label: 'Fund ID', placeholder: 'FUND-IV, FUND-AI, FUND-CLI, ...' },
         { key: 'notes',   label: 'Context / Concerns', type: 'textarea' },
       ]}
-      run={(v) => aiFundStrategyBrief(v)}
+      run={(v, requestOptions) => aiFundStrategyBrief(v, requestOptions)}
     />
   );
 }

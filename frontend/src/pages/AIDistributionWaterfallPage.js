@@ -13,7 +13,7 @@ export default function AIDistributionWaterfallPage() {
         { key: 'exit_proceeds_usd',label: 'Exit Proceeds (USD)', type: 'number' },
         { key: 'context_notes',    label: 'Fund Terms (hurdle, carry, waterfall type)', type: 'textarea' },
       ]}
-      run={(v) => aiDistributionWaterfall(v)}
+      run={(v, requestOptions) => aiDistributionWaterfall(v, requestOptions)}
     />
   );
 }

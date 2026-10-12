@@ -12,7 +12,7 @@ export default function AICompAnalysisPage() {
         { key: 'company_name', label: 'Subject Company' },
         { key: 'peers_text',   label: 'Peer Hints (comma- or newline-separated)', type: 'textarea' },
       ]}
-      run={(v) => aiCompAnalysis(v)}
+      run={(v, requestOptions) => aiCompAnalysis(v, requestOptions)}
     />
   );
 }

@@ -14,7 +14,7 @@ export default function AIMarketSizeEstimatePage() {
         { key: 'context_notes',     label: 'Approach / Constraints', type: 'textarea',
           placeholder: 'Bottom-up vs top-down preference, geography filters, time horizon…' },
       ]}
-      run={(v) => aiMarketSizeEstimate(v)}
+      run={(v, requestOptions) => aiMarketSizeEstimate(v, requestOptions)}
     />
   );
 }

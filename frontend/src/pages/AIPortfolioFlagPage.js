@@ -9,7 +9,7 @@ export default function AIPortfolioFlagPage() {
       feature="portfolio-flag"
       subtitle="Scan portfolio KPIs for early-warning flags (runway, churn, growth, governance)."
       inputs={[]}
-      run={() => aiPortfolioFlag({})}
+      run={(_values, requestOptions) => aiPortfolioFlag({}, requestOptions)}
     />
   );
 }

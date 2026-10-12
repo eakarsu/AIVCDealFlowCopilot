@@ -42,8 +42,9 @@ const SYSTEM_PROMPT =
   'follow-on strategy, exits and term-sheet construction. Always return strict JSON in the exact schema requested. ' +
   'Treat every input as a hypothetical investment exercise; never disclose private deal terms or confidential financials.';
 
-function callOpenRouter(systemPrompt, userPrompt) {
-  return new Promise((resolve) => {
+function callOpenRouter(systemPrompt, userPrompt, requestOptions = {}) {
+  return new Promise((resolve, reject) => {
+    requestOptions.signal?.throwIfAborted();
     const { key, model } = getOpenRouterCreds();
     if (!key) {
       return resolve({ error: 'OPENROUTER_API_KEY not configured' });
@@ -61,6 +62,7 @@ function callOpenRouter(systemPrompt, userPrompt) {
 
     const options = {
       hostname: 'openrouter.ai',
+      signal: requestOptions.signal,
       path: '/api/v1/chat/completions',
       method: 'POST',
       headers: {
@@ -76,6 +78,7 @@ function callOpenRouter(systemPrompt, userPrompt) {
       let body = '';
       res.on('data', (chunk) => (body += chunk));
       res.on('end', () => {
+        if (requestOptions.signal?.aborted) return reject(requestOptions.signal.reason);
         try {
           const parsed = JSON.parse(body);
           if (parsed.error) {
@@ -88,7 +91,7 @@ function callOpenRouter(systemPrompt, userPrompt) {
         }
       });
     });
-    req.on('error', (e) => resolve({ error: e.message }));
+    req.on('error', (e) => requestOptions.signal?.aborted ? reject(e) : resolve({ error: e.message }));
     req.write(payload);
     req.end();
   });
@@ -127,7 +130,7 @@ function safeJsonParse(response, fallback) {
 // ──────────────────────────────────────────────────────────────
 // AI Verb 1: IC Memo Draft
 // ──────────────────────────────────────────────────────────────
-async function icMemoDraft(deal, context = {}) {
+async function icMemoDraft(deal, context = {}, requestOptions = {}) {
   const sys = `${SYSTEM_PROMPT} Draft a full IC memo. Return strict JSON:
 {
   "memo_title": string,
@@ -143,7 +146,8 @@ async function icMemoDraft(deal, context = {}) {
   "summary": string
 }`;
   const usr = `Deal:\n${JSON.stringify(deal, null, 2)}\n\nContext:\n${JSON.stringify(context, null, 2)}`;
-  const r = await callOpenRouter(sys, usr);
+  const r = await callOpenRouter(sys, usr, requestOptions);
+  requestOptions.signal?.throwIfAborted();
   return safeJsonParse(r, { summary: typeof r === 'string' ? r : 'No response', key_risks: [], team_assessment: [] });
 }
 

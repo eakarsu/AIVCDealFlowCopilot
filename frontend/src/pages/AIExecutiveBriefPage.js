@@ -12,7 +12,7 @@ export default function AIExecutiveBriefPage() {
         { key: 'notes', label: 'Bias / Focus (optional)', type: 'textarea',
           placeholder: 'e.g. Focus on Fund IV deployment, at-risk portfolio companies, IC calendar.' },
       ]}
-      run={(v) => aiExecutiveBrief({ notes: v.notes })}
+      run={(v, requestOptions) => aiExecutiveBrief({ notes: v.notes }, requestOptions)}
     />
   );
 }

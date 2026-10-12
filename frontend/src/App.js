@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
+import GovernedAIBriefPage from './pages/GovernedAIBriefPage';
 import Topbar from './components/Topbar';
 import Dashboard from './pages/Dashboard';
 
@@ -100,6 +101,7 @@ function ShellRoutes() {
         <Route path="/codex/operations" element={<CodexOperationsFeature />} />
 
             <Route path="/" element={<Dashboard />} />
+            <Route path="/ai/governed-brief" element={<GovernedAIBriefPage />} />
 
             <Route path="/deals"              element={<DealsPage />} />
             <Route path="/founders"           element={<FoundersPage />} />

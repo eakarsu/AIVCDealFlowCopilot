@@ -12,7 +12,7 @@ export default function AIMarketMappingPage() {
         { key: 'sector',      label: 'Sector', placeholder: 'enterprise AI agents, grid-scale storage, ...' },
         { key: 'focus_notes', label: 'Focus / Sub-segments', type: 'textarea' },
       ]}
-      run={(v) => aiMarketMapping(v)}
+      run={(v, requestOptions) => aiMarketMapping(v, requestOptions)}
     />
   );
 }

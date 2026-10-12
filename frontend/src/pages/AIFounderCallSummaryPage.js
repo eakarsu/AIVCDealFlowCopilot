@@ -12,7 +12,7 @@ export default function AIFounderCallSummaryPage() {
         { key: 'transcript', label: 'Transcript / Notes', type: 'textarea',
           placeholder: 'Paste call notes here — CEO walked through demo, discussed traction, etc.' },
       ]}
-      run={(v) => aiFounderCallSummary({ transcript: v.transcript })}
+      run={(v, requestOptions) => aiFounderCallSummary({ transcript: v.transcript }, requestOptions)}
     />
   );
 }

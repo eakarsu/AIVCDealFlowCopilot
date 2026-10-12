@@ -12,7 +12,7 @@ export default function AIFounderRedflagExtractPage() {
         { key: 'founder_name', label: 'Founder Name' },
         { key: 'material',     label: 'Source Material (references, press, board minutes, cap-table notes)', type: 'textarea' },
       ]}
-      run={(v) => aiFounderRedflagExtract(v)}
+      run={(v, requestOptions) => aiFounderRedflagExtract(v, requestOptions)}
     />
   );
 }

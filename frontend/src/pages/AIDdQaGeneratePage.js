@@ -14,7 +14,7 @@ export default function AIDdQaGeneratePage() {
           options: ['pre_seed','seed','series_a','series_b','series_c','series_d','growth'] },
         { key: 'focus_notes', label: 'Focus Areas / Concerns', type: 'textarea' },
       ]}
-      run={(v) => aiDdQaGenerate(v)}
+      run={(v, requestOptions) => aiDdQaGenerate(v, requestOptions)}
     />
   );
 }

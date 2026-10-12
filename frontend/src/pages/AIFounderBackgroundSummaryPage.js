@@ -14,7 +14,7 @@ export default function AIFounderBackgroundSummaryPage() {
           placeholder: 'Paste LinkedIn export, press clippings, interview notes, conference bio…' },
         { key: 'context_notes', label: 'Diligence Context (optional)', type: 'textarea' },
       ]}
-      run={(v) => aiFounderBackgroundSummary(v)}
+      run={(v, requestOptions) => aiFounderBackgroundSummary(v, requestOptions)}
     />
   );
 }

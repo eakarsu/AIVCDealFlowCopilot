@@ -16,7 +16,7 @@ export default function AIIcMemoDraftPage() {
         { key: 'valuation_usd',  label: 'Valuation (USD)',  type: 'number' },
         { key: 'notes',          label: 'Notes / Diligence Highlights', type: 'textarea' },
       ]}
-      run={(v) => aiIcMemoDraft(v)}
+      run={(v, requestOptions) => aiIcMemoDraft(v, requestOptions)}
     />
   );
 }

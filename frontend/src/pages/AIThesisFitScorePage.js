@@ -17,7 +17,7 @@ export default function AIThesisFitScorePage() {
           placeholder: 'Fund AI I invests in enterprise AI infrastructure and applied AI orchestration for regulated industries…' },
         { key: 'context_notes', label: 'Additional Context (optional)', type: 'textarea' },
       ]}
-      run={(v) => aiThesisFitScore(v)}
+      run={(v, requestOptions) => aiThesisFitScore(v, requestOptions)}
     />
   );
 }

@@ -77,6 +77,7 @@ const GOVERNANCE_LINKS = [
 ];
 
 const AI_MEMO_LINKS = [
+  { to: "/ai/governed-brief", label: "AI · Governed Deal Brief" },
   { to: '/ai/ic-memo-draft',              label: 'AI · IC Memo Draft' },
   { to: '/ai/founder-call-summary',       label: 'AI · Founder Call Summary' },
   { to: '/ai/founder-background-summary', label: 'AI · Founder Background Summary' },

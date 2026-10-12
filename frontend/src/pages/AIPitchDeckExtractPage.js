@@ -13,7 +13,7 @@ export default function AIPitchDeckExtractPage() {
           placeholder: 'Paste the full pitch deck transcript / OCR / export here…' },
         { key: 'context_notes', label: 'Context Notes (optional)', type: 'textarea' },
       ]}
-      run={(v) => aiPitchDeckExtract(v)}
+      run={(v, requestOptions) => aiPitchDeckExtract(v, requestOptions)}
     />
   );
 }

@@ -13,7 +13,7 @@ export default function AILpReportDraftPage() {
         { key: 'period', label: 'Period',   placeholder: '2026Q1' },
         { key: 'notes',  label: 'Highlights / Context', type: 'textarea' },
       ]}
-      run={(v) => aiLpReportDraft(v)}
+      run={(v, requestOptions) => aiLpReportDraft(v, requestOptions)}
     />
   );
 }

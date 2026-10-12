@@ -12,7 +12,7 @@ export default function AIFollowOnRecommendPage() {
         { key: 'investment_id', label: 'Investment ID', placeholder: 'INV-2024-002' },
         { key: 'notes',         label: 'Round Context', type: 'textarea' },
       ]}
-      run={(v) => aiFollowOnRecommend(v)}
+      run={(v, requestOptions) => aiFollowOnRecommend(v, requestOptions)}
     />
   );
 }

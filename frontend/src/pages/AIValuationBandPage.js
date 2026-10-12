@@ -12,7 +12,7 @@ export default function AIValuationBandPage() {
         { key: 'company_name', label: 'Company' },
         { key: 'metrics_text', label: 'Metrics (ARR, growth, margins, etc.)', type: 'textarea' },
       ]}
-      run={(v) => aiValuationBand(v)}
+      run={(v, requestOptions) => aiValuationBand(v, requestOptions)}
     />
   );
 }

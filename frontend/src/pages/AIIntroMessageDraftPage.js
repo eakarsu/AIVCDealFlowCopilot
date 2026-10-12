@@ -13,7 +13,7 @@ export default function AIIntroMessageDraftPage() {
         { key: 'target',        label: 'Target (founder / operator)' },
         { key: 'context_notes', label: 'Context / Why this intro', type: 'textarea' },
       ]}
-      run={(v) => aiIntroMessageDraft(v)}
+      run={(v, requestOptions) => aiIntroMessageDraft(v, requestOptions)}
     />
   );
 }

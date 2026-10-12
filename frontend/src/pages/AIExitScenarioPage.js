@@ -12,7 +12,7 @@ export default function AIExitScenarioPage() {
         { key: 'company_name',  label: 'Company' },
         { key: 'context_notes', label: 'Context (ARR, owners, exit acquirer hints)', type: 'textarea' },
       ]}
-      run={(v) => aiExitScenario(v)}
+      run={(v, requestOptions) => aiExitScenario(v, requestOptions)}
     />
   );
 }

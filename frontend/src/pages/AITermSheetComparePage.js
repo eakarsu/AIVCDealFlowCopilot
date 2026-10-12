@@ -12,7 +12,7 @@ export default function AITermSheetComparePage() {
         { key: 'versions_text', label: 'Term Sheet Versions (paste each version)', type: 'textarea',
           placeholder: 'V1: ... terms\n\nV2: ... terms' },
       ]}
-      run={(v) => aiTermSheetCompare({ versions_text: v.versions_text })}
+      run={(v, requestOptions) => aiTermSheetCompare({ versions_text: v.versions_text }, requestOptions)}
     />
   );
 }
