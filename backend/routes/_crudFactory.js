@@ -36,10 +36,22 @@ function parseCsv(text) {
 function buildCrud({ table, fields, idPrefix = '', webhookPrefix = null }) {
   const router = express.Router();
 
+  router.get('/export', async (req, res) => {
+    try {
+      const fp = require('./featurePack');
+      const r = await pool.query(`SELECT * FROM ${table} ORDER BY id DESC`);
+      const rows = fp.filterRecords(r.rows, req.query);
+      const fmt = String(req.query.format || 'json').toLowerCase();
+      if (fmt === 'csv') { res.setHeader('Content-Type','text/csv'); res.setHeader('Content-Disposition',`attachment; filename="${table}.csv"`); return res.send(fp.toCsv(rows)); }
+      return res.json({ resource: table, total: rows.length, items: rows });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
   router.get('/', async (req, res) => {
     try {
       const r = await pool.query(`SELECT * FROM ${table} ORDER BY id DESC`);
-      res.json(r.rows);
+      const hasFilter = ['q','search','status','stage','sector'].some(k => req.query[k]);
+      res.json(hasFilter ? require('./featurePack').filterRecords(r.rows, req.query) : r.rows);
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 

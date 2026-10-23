@@ -101,6 +101,15 @@ app.use('/api/access-rules',             require('./routes/accessRules'));
 app.use('/api/saved-searches',           require('./routes/savedSearches'));
 app.use('/api/global-search',            require('./routes/globalSearch'));
 
+try {
+  const fp = require('./routes/featurePack');
+  const { router: fpRouter, store: fpStore } = fp.createFeaturePackRouter({
+    getRecords: async () => (await pool.query('SELECT * FROM deals ORDER BY id DESC')).rows,
+    aiFeatures: fp.aiFeatures(), resourceName: 'deals',
+  });
+  app.use('/api/feature-pack', fpRouter);
+  app.use('/api/tasks', fp.createTasksRouter(fpStore, authenticateToken));
+} catch (e) { console.warn('[feature-pack]', e.message); }
 verifySchema()
   .then(() => {
     app.listen(PORT, () => {
